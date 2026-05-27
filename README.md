@@ -25,6 +25,13 @@ Este proyecto tiene algunos anteriores dentro, embedidos:
 - `DevToolkit.Templating.Tjs`:
    - [https://github.com/allnulled/templated-js](https://github.com/allnulled/templated-js)
 
+## Especificidades sensibles
 
+## El dev-toolkit.dist.js no va solo
 
-
+- El `dist/dev-toolkit/dev-toolkit.dist.js` necesita de los ficheros que están en la misma carpeta:
+   - `index.ejs.html`: la plantilla del `index.html` de refrescador
+   - `refrescador.api.dist.js`: la api de node.js de refrescador
+   - `refrescador.cli.dist.js`: con este puedes usar refrescador vía cmd
+   - `template-for-socket.io-client-reloader.ejs`: este genera la plantilla que sirve refrescador en `/client.js`
+   - `template-for-socket.io-client-reloader.js`: este se crea solo y no se usa, es solo para debugar como queda la plantilla.
