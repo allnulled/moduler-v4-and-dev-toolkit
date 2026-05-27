@@ -1,0 +1,22 @@
+{
+  "name": "moduler-v4",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "bash dev/dev.sh",
+    "build": "node dev/build.js",
+    "test": "node test/test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "chokidar": "^5.0.0",
+    "ejs": "^5.0.2",
+    "express": "^5.2.1",
+    "js-beautify": "^1.15.4",
+    "picomatch": "^4.0.4",
+    "socket.io": "^4.8.3"
+  }
+}
