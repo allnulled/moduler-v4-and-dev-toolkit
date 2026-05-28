@@ -1,5 +1,5 @@
-module.exports = async function ({ DevToolkit, devToolkit }) {
-  const assert = DevToolkit.Testing.Asserter.createLoggerAssert();
+module.exports = async function ({ DevToolkit, devToolkit, startTime, titleColumns }) {
+  const { assert } = DevToolkit.Testing.Asserter.createLoggerAssert({ startTime, prefix: "Testing".padEnd(titleColumns) });
   assert(1, "Starting DevToolkit.Testing test");
   assert(typeof DevToolkit.Testing === "function", "Can find DevToolkit.Testing");
   /*

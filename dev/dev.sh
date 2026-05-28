@@ -18,6 +18,7 @@ pwd > cwd.txt
     -i "**/dist-instrumented/**/*" \
     -i "**/unwatched/**/*" \
     -d 0 \
+    -mf "TODO.md" \
     -e "sh" \
     -e "ts" \
     -e "tsx" \

@@ -1,7 +1,7 @@
-module.exports = async function ({ DevToolkit, devToolkit }) {
-  const assert = DevToolkit.Testing.Asserter.createLoggerAssert();
+module.exports = async function ({ DevToolkit, devToolkit, startTime, titleColumns }) {
+  const { assert } = DevToolkit.Testing.Asserter.createLoggerAssert({ startTime, prefix: "FileWatcher".padEnd(titleColumns) });
   assert(1, "Starting DevToolkit.FileWatcher test");
-  assert(typeof DevToolkit.FileWatcher.refrescador === "object", "Can find DevToolkit.FileWatcher.refrescador");
+  assert(typeof DevToolkit.FileWatcher.Refrescador === "object", "Can find DevToolkit.FileWatcher.Refrescador");
   const isUsingRefrescador = (function (args) {
     let isFrom = 0;
     for (let index = 0; index < args.length; index++) {
@@ -28,7 +28,7 @@ module.exports = async function ({ DevToolkit, devToolkit }) {
       extensions: ["txt"],
       message: "Este filewatcher es del test"
     });
-    await setTimeout(0);
+    await setTimeout(100);
     await fs.promises.writeFile(__dirname + "/unwatched/test.txt", "ok", "utf8");
     await setTimeout(0);
     filewatcher.server.watcher.close();

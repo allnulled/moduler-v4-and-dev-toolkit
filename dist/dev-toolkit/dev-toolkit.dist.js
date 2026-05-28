@@ -33,6 +33,9 @@
   static Tracer = Tracer;
   static CommandLine = class CommandLine {
    static Colors = require(__dirname + "/refrescador.api.dist.js").colors;
+   static printError(error) {
+    console.log(DevToolkit.CommandLine.Colors.style("redBright,bold").text(DevToolkit.CommandLine.Colors.box(`${error.name}: ${error.message}`)), "\n", error);
+   };
   };
   static Testing = class Testing {
    static Asserter = class Asserter {
@@ -47,7 +50,7 @@
      throw new this.AssertionError(message);
     }
     static createAssert(onSuccess = this.defaultOnSuccess, onError = this.defaultOnError, specificOutputs = {}) {
-     return function(condition, message) {
+     const assert = function(condition, message) {
       if (["string", "number"].includes(typeof condition) && condition in specificOutputs) {
        return specificOutputs[condition](message);
       } else if (condition) {
@@ -55,17 +58,49 @@
       } else {
        return onError(message);
       }
-     }
+     };
+     return {
+      assert,
+      // Aserciones de filesystem:
+      assertFileExists: function(file, message) {
+       return DevToolkit.FileSystem.readFile(file, {
+        inTry: true
+       }).then(out => assert(typeof out === "string", message));
+      },
+      assertDirectoryExists: function(dir, message) {
+       return DevToolkit.FileSystem.readDirectory(dir, {
+        inTry: true
+       }).then(out => assert(typeof out === "object", message));
+      },
+      assertFileContents: function(file, contents, message) {
+       return DevToolkit.FileSystem.readFile(file, {
+        inTry: true
+       }).then(out => assert(out === contents, message));
+      },
+      assertFileMissing: function(file, message) {
+       return DevToolkit.FileSystem.readFile(file, {
+        inTry: true
+       }).then(out => assert(typeof out !== "string", message));
+      },
+      assertDirectoryMissing: function(dir, message) {
+       return DevToolkit.FileSystem.readDirectory(dir, {
+        inTry: true
+       }).then(out => assert(typeof out !== "object", message));
+      },
+     };
     }
-    static createLoggerAssert() {
-     const startTime = new Date();
+    static createLoggerAssert(options = {}) {
+     const startTime = options.startTime || new Date();
      return this.createAssert(message => {
-      console.log(DevToolkit.CommandLine.Colors.style("greenBright").text(` OK | ${(new Date()) - startTime} | ${message}`));
+      console.log(DevToolkit.CommandLine.Colors.style("greenBright").text(`${options.prefix || ""} |  OK | ${(((new Date()) - startTime) + "").padStart(6)} | ${message}`));
      }, message => {
-      console.log(DevToolkit.CommandLine.Colors.style("redBright,underline,bold").text(`ERR | ${(new Date()) - startTime} | ${message}`));
+      console.log(DevToolkit.CommandLine.Colors.style("redBright,underline,bold").text(`${options.prefix || ""} | ERR | ${(((new Date()) - startTime) + "").padStart(6)} | ${message}`));
+      if (options.bulletproof !== true) {
+       throw new this.AssertionError(message);
+      }
      }, {
       "1"(message) {
-       console.log(DevToolkit.CommandLine.Colors.style("cyan,underline").text(`    | ${(new Date()) - startTime} | ${message}`));
+       console.log(DevToolkit.CommandLine.Colors.style("cyan,underline").text(`${options.prefix || ""} |  #  | ${(((new Date()) - startTime) + "").padStart(6)} | ${message}`));
       }
      });
     }
@@ -80,9 +115,55 @@
     this.trace = Tracer.createTracer("DevToolkit.Events", "constructor");
     this.toolkit = toolkit;
    }
-   touch(file) {}
-   propagateOnTouch() {}
-   propagateOnTest() {}
+   async touch(file) {
+    this.trace("prototype.touch", arguments, 0);
+    Acquire_semaphore: {
+     await this.toolkit.semaphore.acquire();
+    }
+    try {
+     Propagate_on_touch: {
+      const path = require("path");
+      const subpath = this.toolkit.subpathOf(file);
+      const parts = subpath.split("/").filter(part => part !== "");
+      // Iteramos los directorios superiores del fichero touched hasta la raíz del toolkit:
+      for (let index = parts.length - 1; index > -1; index--) {
+       const subparts = parts.toSpliced(index);
+       const touchedPath = this.toolkit.fullpathOf(subparts.join("/"));
+       const touchedName = path.basename(touchedPath);
+       const triggableByFolder = path.resolve(`${touchedPath}/${touchedName}.js`);
+       const triggableByOnTouch = path.resolve(`${touchedPath}/onTouch.js`);
+       Trigger_by_folder:
+        if (await DevToolkit.FileSystem.existsFile(triggableByFolder)) {
+         // DevToolkit.CommandLine.Colors.style("yellow,underline").print("Should run: ", triggableByFolder);
+         const callback = require(triggableByFolder);
+         if (typeof callback === "function") {
+          await callback.call(this.toolkit, file);
+         }
+        }
+       Trigger_by_onTouch:
+        if (await DevToolkit.FileSystem.existsFile(triggableByOnTouch)) {
+         // DevToolkit.CommandLine.Colors.style("yellow,underline").print("Should run: ", triggableByOnTouch);
+         const callback = require(triggableByOnTouch);
+         if (typeof callback === "function") {
+          await callback.call(this.toolkit, file);
+         }
+        }
+      }
+     }
+    }
+    catch (error) {
+     DevToolkit.CommandLine.printError(error);
+    }
+    Release_semaphore: {
+     await this.toolkit.semaphore.release();
+    }
+   }
+   propagateOnTouch() {
+    this.trace("prototype.propagateOnTouch", arguments);
+   }
+   propagateOnTest() {
+    this.trace("prototype.propagateOnTest", arguments);
+   }
   };
   static Semaphore = class Semaphore {
    constructor(toolkit, filename = "semaphore.main.txt") {
@@ -94,33 +175,123 @@
     this.filename = filename;
    }
    getFilepath() {
-    return require("path").resolve(this.toolkit.basedir, this.uid);
+    return this.toolkit.fullpathOf(this.filename);
    }
-   open() {
-    return require("fs").promises.writeFile(this.getFilepath(), "opened", "utf8");
-   }
-   async close() {
+   async acquire() {
     const fs = require("fs");
     const target = this.getFilepath();
-    const contents = await fs.promises.readFile(target, "utf8");
-    if (contents !== "opened") throw new Error("cannot close semaphore because it is not opened right now");
-    await fs.promises.writeFile(target, "closed", "utf8");
+    Reading_state: {
+     try {
+      const contents = await fs.promises.readFile(target, "utf8");
+      if (contents !== "released") throw new Error(`cannot acquire semaphore because it is not released right now it is «${contents}»`);
+     } catch (error) {
+      if (error.code === "ENOENT") break Reading_state;
+      throw error;
+     }
+    }
+    await fs.promises.writeFile(target, "acquired", "utf8");
+   }
+   release() {
+    return require("fs").promises.writeFile(this.getFilepath(), "released", "utf8");
+   }
+   async destroy() {
+    const fs = require("fs");
+    const target = this.getFilepath();
+    try {
+     await fs.promises.unlink(target);
+     return true;
+    } catch (error) {
+     if (error.code === "ENOENT") return false;
+     throw error;
+    }
    }
   };
   static FileWatcher = class FileWatcher {
-   static refrescador = require(__dirname + "/refrescador.api.dist.js");
+   static Refrescador = require(__dirname + "/refrescador.api.dist.js");
    static start(options) {
-    return this.refrescador(options);
+    return this.Refrescador.run(options);
+   }
+  };
+  static FileSystem = class FileSystem {
+   static exists(file) {
+    return require("fs").promises.lstat(file).catch(error => false);
+   }
+   static existsFile(file) {
+    return require("fs").promises.lstat(file).then(lstat => {
+     return lstat.isFile();
+    }).catch(error => false);
+   }
+   static readFile(file, inTry = false) {
+    if (inTry) {
+     return require("fs").promises.readFile(file, "utf8").catch(error => false);
+    }
+    return require("fs").promises.readFile(file, "utf8");
+   }
+   static writeFile(file, contents, options = {
+    recursive: false
+   }) {
+    if (options.recursive) throw new Error("operation not supported yet: writeFile + recursive=true");
+    return require("fs").promises.writeFile(file, contents);
+   }
+   static deleteFile(file, options = {
+    inTry: false
+   }) {
+    if (options.inTry) {
+     require("fs").promises.unlink(file).catch(error => false);
+    }
+    return require("fs").promises.unlink(file);
+   }
+   static existsDirectory(file) {
+    return require("fs").promises.lstat(file).then(lstat => {
+     return lstat.isDirectory();
+    }).catch(error => false);
+   }
+   static readDirectory(file, options = {
+    inTry: false
+   }) {
+    if (options.inTry) {
+     return require("fs").promises.readdir(file).catch(error => false);
+    }
+    return require("fs").promises.readdir(file);
+   }
+   static writeDirectory(file, options = {
+    recursive: false
+   }) {
+    return require("fs").promises.mkdir(file, options);
+   }
+   static deleteDirectory(file, options = {
+    inTry: false
+   }) {
+    if (options.inTry) {
+     return require("fs").promises.rm(file, {
+      recursive: true
+     }).catch(error => false);
+    }
+    return require("fs").promises.rm(file, {
+     recursive: true
+    });
    }
   };
   static Templating = class Templating {
    static Tjs = require("./tjs.js");
+  };
+  static Time = class Time {
+   static timeout(ms) {
+    return require("timers/promises").setTimeout(ms);
+   }
   };
   constructor(basedir = process.cwd()) {
    this.basedir = basedir;
    this.testing = new this.constructor.Testing(this);
    this.events = new this.constructor.Events(this);
    this.semaphore = new this.constructor.Semaphore(this, "semaphore.dev-toolkit.txt");
+  }
+  fullpathOf(subpath) {
+   return require("path").resolve(this.basedir, subpath);
+  }
+  subpathOf(subpath) {
+   if (!subpath.startsWith(this.basedir + "/")) throw new Error(`provided file is not a subpath of «${this.toolkit.basedir}»`);
+   return subpath.replace(this.basedir + "/", "");
   }
  };
 }.call());

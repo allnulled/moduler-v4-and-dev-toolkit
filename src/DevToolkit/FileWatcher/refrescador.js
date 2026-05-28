@@ -1,1 +1,0 @@
-static refrescador = require(__dirname + "/refrescador.api.dist.js");

@@ -11,7 +11,11 @@
     static Events = /*<$=await include("./Events/Events.js")$>*/0;
     static Semaphore = /*<$=await include("./Semaphore/Semaphore.js")$>*/0;
     static FileWatcher = /*<$=await include("./FileWatcher/FileWatcher.js")$>*/0;
+    static FileSystem = /*<$=await include("./FileSystem/FileSystem.js")$>*/0;
     static Templating = /*<$=await include("./Templating/Templating.js")$>*/0;
+    static Time = /*<$=await include("./Time/Time.js")$>*/0;
     /*<$=await include("./constructor.js")$>*/
+    /*<$=await include("./prototype.fullpathOf.js")$>*/
+    /*<$=await include("./prototype.subpathOf.js")$>*/
   };
 }.call());

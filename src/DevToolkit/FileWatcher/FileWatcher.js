@@ -1,4 +1,4 @@
 class FileWatcher {
-  /*<$=await include("./refrescador.js")$>*/
+  static Refrescador = /*<$=await include("./Refrescador.js")$>*/0;
   /*<$=await include("./start.js")$>*/
 }

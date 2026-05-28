@@ -1,3 +1,3 @@
 static start(options) {
-  return this.refrescador(options);
+  return this.Refrescador.run(options);
 }
