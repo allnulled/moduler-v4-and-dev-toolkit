@@ -16,6 +16,7 @@
     // Métodos estáticos:
     /*<$=await include("./create.js")$>*/
     // Métodos estáticos:
+    /*<$=await include("./assert.js")$>*/
     /*<$=await include("./import.js")$>*/
     /*<$=await include("./require.js")$>*/
     /*<$=await include("./evalAsync.js")$>*/
@@ -25,21 +26,26 @@
     /*<$=await include("./evalFile.js")$>*/
     /*<$=await include("./evalFileSync.js")$>*/
     // Propiedades prototipo iniciales:
-    /*<$=await include("./prototype.all.js")$>*/
-    /*<$=await include("./prototype.sections.js")$>*/
+    /*<$=await include("./prototype.definitions.js")$>*/
     /*<$=await include("./prototype.statics.js")$>*/
     // Métodos dinámicos:
     /*<$=await include("./constructor.js")$>*/
-    // Métodos dinámicos para secciones:
-    /*<$=await include("./prototype.section.js")$>*/
     // Métodos dinámicos para definiciones:
     /*<$=await include("./prototype.knows.js")$>*/
     /*<$=await include("./prototype.define.js")$>*/
     /*<$=await include("./prototype.mean.js")$>*/
-    // Métodos dinámicos para estáticos:
-    /*<$=await include("./prototype.has.js")$>*/
-    /*<$=await include("./prototype.set.js")$>*/
-    /*<$=await include("./prototype.get.js")$>*/
-  }
+  };
+  /*<$=await include("./Dictionary.js")$>*/
+  Promise.fromObject = function (obj) {
+    const allKeys = Object.keys(obj);
+    return Promise.all(Object.values(Object.values(obj))).then(output => {
+      let toObject = {};
+      for(let index=0; index<output.length; index++) {
+        const item = output[index];
+        toObject[allKeys[index]] = item;
+      }
+      return toObject;
+    })
+  };
   return ModulerV4;
 });

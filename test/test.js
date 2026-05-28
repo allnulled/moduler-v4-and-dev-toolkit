@@ -14,6 +14,7 @@ const tests = [
 const main = async function () {
   const DevToolkit = require(`${__dirname}/../dist/dev-toolkit/dev-toolkit.dist.js`);
   const devToolkit = new DevToolkit(`${__dirname}/unwatched`);
+  const ModulerV4 = require(`${__dirname}/../dist/moduler-v4/moduler-v4.dist.js`);
   const hasColors = (() => {try {DevToolkit.CommandLine.Colors.style;return true;} catch(error) {return false;}})();
   const results = { output: [] };
   const startTime = new Date();

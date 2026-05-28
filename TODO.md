@@ -7,10 +7,5 @@
    ⚫️ Se propague la compilación de:
     ✅ los onTouch.js 
      ✅ Acabado: 28/05/2026 17:54am
-    🔔 los `<dir>/<dir>.js`
+    🔔 los `<dir>/*.entry.js`
      🔔 Acabado: 28/05/2026 no todavía
-
-✅ Acabado: 28/05/2026 11:37am
- ✅ Semáforos:
-  ✅ que se bloquee si está cerrado
-  ✅ un test confirmando

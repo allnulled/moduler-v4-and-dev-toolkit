@@ -20,6 +20,9 @@
    return new this(...args);
   }
   // Métodos estáticos:
+  assert(condition, message) {
+   if (!condition) throw new Error(message);
+  }
   static import(url, options = false) {
    return options ? import(url, options) : import(url);
   }
@@ -43,42 +46,72 @@
    return this.evalSync(require("fs").readFileSync(file).toString(), injection);
   }
   // Propiedades prototipo iniciales:
-  all = [];
-  sections = {};
-  statics = [];
+  definitions = {};
+  statics = {};
   // Métodos dinámicos:
   constructor() {
 
   }
-  // Métodos dinámicos para secciones:
-  section(ids) {
-   // Encuentra la sección a partir de un Array<String> y this.sections
-   // - Si no encuentra camino, lo crea (con objetos planos)
-   // - Haya o no camino, devuelve un objeto con { define, mean, knows } pero adaptado a este objeto/sección solamente
-  }
   // Métodos dinámicos para definiciones:
   knows(id) {
    // Comprueba si un id está en definitions
+   this.assert(typeof id === "string", "required «arguments[0]=id» as string to use «knows»");
+   if (id in this.statics) return true;
+   if (!(id in this.definitions)) return false;
+   return true;
   }
-  define(id, dependencies, factory, options = {}) {
+  define(...args) {
+   let id, dependencies = [],
+    factory;
+   if (args.length === 1) {
+    [factory] = args;
+   } else if (args.length === 2) {
+    [id, factory] = args;
+   } else if (args.length === 3) {
+    [id, dependencies, factory] = args;
+   } else {
+    throw new Error("required «arguments.length» to be minimum 1 and maximum 3 to use «define»");
+   }
    // Llama a factory, pasándole las dependencies resueltas y lo pone en id
+   // this.assert(typeof id === "string", "required «id» as string to use «define»");
+   this.assert(Array.isArray(dependencies), `required «dependencies» as array to use «define» but «${typeof dependencies}» was found instead`);
+   this.assert(typeof factory === "function", `required «factory» as function to use «define» but «${typeof factory}» was found instead`);
+   const parameters = [];
+   for (let index = 0; index < dependencies.length; index++) {
+    const dependency = dependencies[index];
+    const parameter = this.mean(dependency);
+    parameters.push(parameter);
+   }
+   const data = factory(...parameters);
+   this.definitions[id] = data;
+   if (data instanceof Promise) data.then(output => this.statics[id] = output);
+   return data;
   }
-  mean() {
-
+  mean(id) {
+   // Busca en statics, si no, busca en definitions, y si no, lanza error.
+   if (typeof id === "function") return id();
+   this.assert(typeof id === "string", "required «arguments[0]=id» as string to use «mean»");
+   if (id in this.statics) return this.statics[id];
+   this.assert(id in this.definitions, "required «arguments[0]=id» to be defined to use «mean»");
+   return this.definitions[id];
   }
-  // Métodos dinámicos para estáticos:
-  has(staticsPath) {
-   // Determina (con un booleano) si ese path ya está registrado en statics
-  }
-  set(staticsPath, value) {
-   // Establece un valor en el árbol de statics:
-   // - Si no encuentra camino, lo crea (con ojbetos planos)
-   // - Si no estaba el objetivo: establece el valor en el sitio indicado
-   // - Si ya había algo en el objetivo: debería lanzar error
-  }
-  get(staticsPath, defaultValue = ModulerV4.symbol.THROW) {
-
-  }
- }
+ };
+ (function(mod) {
+  if (typeof window !== 'undefined') window['Dictionary'] = mod;
+  if (typeof global !== 'undefined') global['Dictionary'] = mod;
+ })(function() {
+  return new ModulerV4();
+ }.call());
+ Promise.fromObject = function(obj) {
+  const allKeys = Object.keys(obj);
+  return Promise.all(Object.values(Object.values(obj))).then(output => {
+   let toObject = {};
+   for (let index = 0; index < output.length; index++) {
+    const item = output[index];
+    toObject[allKeys[index]] = item;
+   }
+   return toObject;
+  })
+ };
  return ModulerV4;
 });
