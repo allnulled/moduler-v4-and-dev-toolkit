@@ -45,7 +45,11 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV4, startTime,
     assert(typeof numbers.promise3 === "number", "Can define modules by promise (point 4): finds numbers.promise3 as number");
   }
   Test_modules_by_static: {
-    // Nótese que aquí no usamos el await, porque sabemos que el mean anterior habría fallado de no tenerlo cargado
+    // Nótese que aquí no usamos el await,
+    // porque sabemos que es una promesa
+    // y que el mean anterior habría fallado de no tenerlo cargado,
+    // y el mean lo encontrará en statics por ser promesa
+    // y nos lo resolverá como valor directo:
     const numbers = Dictionary.mean("promise/numbers");
     assert(typeof numbers === "object", "Can define modules by static (point 1): finds numbers as object");
     assert(typeof numbers.promise1 === "number", "Can define modules by static (point 2): finds numbers.promise1 as number");

@@ -3,4 +3,5 @@ class Events {
   /*<$=await include("./prototype.touch.js")$>*/
   /*<$=await include("./prototype.propagateOnTouch.js")$>*/
   /*<$=await include("./prototype.propagateOnTest.js")$>*/
+  /*<$=await include("./prototype.propagateOnDistribute.js")$>*/
 }

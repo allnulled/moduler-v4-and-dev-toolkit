@@ -12,7 +12,6 @@
 })(function () {
   const ModulerV4 = class {
     // Propiedades estáticas:
-    /*<$=await include("./symbols.js")$>*/
     // Métodos estáticos:
     /*<$=await include("./create.js")$>*/
     // Métodos estáticos:
