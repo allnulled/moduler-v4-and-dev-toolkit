@@ -1,5 +1,14 @@
+✅ Iniciado: 30/05/2026 00:39am
+  ✅ Tests para comprobar que los parámetros son correctos en todas las firmas
+✅ Acabado: 30/05/2026 00:39am
+  ✅ Cumplir con las firmas de la especificación de moduler-v5
+    ✅ define(dependencies:Array, factory:Function)
+    ✅ define(factory:Function)
+    ✅ mean(dependencies:Array, factory:Function)
+    ✅ mean(dependencies:Array)
+    ✅ mean(id:String)
+    ✅ mean(factory:Function)
 ✅ Iniciado: 29/05/2026 09:00am
- ✅ ......................... {{ continuamos aquí }}
 ✅ Iniciado 28/05/2026 11:37am
  ✅ Eventos:
   ✅ Que al tocar con `touch()` un fichero:

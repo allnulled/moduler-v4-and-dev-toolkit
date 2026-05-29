@@ -4,11 +4,13 @@ La especificación ModulerV5 intenta explicar cómo tiene que ser el framework y
 
 ## Cláusulas
 
+Conjunto de cláusulas de la especificación.
 
-### C.1. No hay ids, solo paths
+### C.1. El identificador principal es el path
 
-- Esto es para no redundar en identificadores, sabiendo que el path ya es un identificador único.
-- Más adelante se añadirá si hace falta
+- De momento se empieza sin un id personalizable
+   - Esto es para no redundar en identificadores, sabiendo que el path ya es un identificador único
+   - Más adelante se añadirá
 
 ### C.2. Un path puede exportar 1 valor pero definir múltiples valores
 
@@ -18,8 +20,54 @@ La especificación ModulerV5 intenta explicar cómo tiene que ser el framework y
 
 ### C.3. Usa module.exports y exports.prop pero no return
 
-- Los ficheros usan la sintaxis de `module.exports` y `exports.prop` para exportar en tiempo real los módulos.
-- No usan `return` porque es bloqueante, interrumpe el script.
+- Los ficheros usan la sintaxis de node.js:
+   - `module.exports` para exportar de golpe todo el módulo
+   - `exports.<prop>` para exportar en tiempo real partes del módulo
+   - puede usarse `return` también (que sobreescribe si no es `undefined`) solo que es bloqueante, interrumpe el script
+
+### C.4. Firmas de los métodos
+
+- El `define` permite:
+   - `define(dependencies:Array, factory:Function):Promise`
+   - `define(factory:Function):Promise`
+- El `mean` permite:
+   - `mean(dependencies:Array, factory:Function):Promise`
+   - `mean(dependencies:Array):Promise` (exclusiva de `mean`)
+   - `mean(id:String):Promise` (exclusiva de `mean`)
+   - `mean(factory:Function):Promise`
+
+#### C.5. Firma de la función factory
+
+- El `factory:Function` recibe:
+   - `...dependencies:Array<any>`: dependencias resultas en el orden proporcionado
+   - `module:Object`: la fórmula de node.js para usar `module.exports`
+   - `exports:Object`: la fórmula de node.js para usar `exports.<prop>`
+      - esto permite usar las firmas `Dictionary.define`, `Dictionary.mean`, etc. para referirse a la instancia local de cada caso
+   - `__filename:String`: ruta completa del fichero actual
+   - `__dirname:String`: ruta completa de la carpeta actual
+   - `Dictionary:ModulerV5`: instancia de `ModulerV5` que ha hecho la llamada a `define` o `mean`
+
+
+Su uso quedaría así:
+
+```js
+Dictionary.define(["./a.js", "./b.js"], function(a, b, module, exports, __filename, __dirname, Dictionary) {
+    //...
+});
+Dictionary.mean(["./a.js", "./b.js"], function(a, b, module, exports, __filename, __dirname, Dictionary) {
+    //...
+});
+```
+
+#### C.6. Variables fantasma en los scripts de dependencias
+
+- Las variables fantasma son las mismas que las de la función `factory:Function` pero sin dependencias inyectadas:
+   - `module:Object`
+   - `exports:Object`
+   - `__filename:String`
+   - `__dirname:String`
+   - `Dictionary:ModulerV5`
+
 
 ### C.Ejemplo.0.1. Instrucciones generales
 

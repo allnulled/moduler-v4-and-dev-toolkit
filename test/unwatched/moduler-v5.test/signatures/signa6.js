@@ -1,0 +1,1 @@
+return Dictionary.mean(_ => 77);

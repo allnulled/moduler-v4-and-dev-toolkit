@@ -12,6 +12,7 @@
     /*<$=await include("./prototype.trace.js")$>*/
     /*<$=await include("./prototype.definitions.js")$>*/
     /*<$=await include("./prototype.assert.js")$>*/
+    /*<$=await include("./prototype.normalizationOf.js")$>*/
     /*<$=await include("./prototype.fullpathOf.js")$>*/
     /*<$=await include("./prototype.importModule.js")$>*/
     /*<$=await include("./prototype.readPath.js")$>*/

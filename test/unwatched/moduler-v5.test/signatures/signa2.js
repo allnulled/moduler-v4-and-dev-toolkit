@@ -1,0 +1,1 @@
+return Dictionary.define([() => 25], result => result * 2);

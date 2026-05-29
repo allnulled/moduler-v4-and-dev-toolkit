@@ -1,0 +1,1 @@
+return Dictionary.mean("signatures/signa5-data.js");

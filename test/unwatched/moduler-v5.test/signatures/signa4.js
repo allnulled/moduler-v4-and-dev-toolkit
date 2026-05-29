@@ -1,0 +1,1 @@
+return Dictionary.mean(["signatures/signa4-part-1.js", "signatures/signa4-part-2.js"]);

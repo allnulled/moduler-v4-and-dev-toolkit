@@ -1,3 +1,4 @@
 
 ⚫️=Pendiente 🔵=Trámite 🔔=Activo ✅=Hecho
 
+⚫️ 

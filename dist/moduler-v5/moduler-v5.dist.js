@@ -34,6 +34,7 @@
       this.trace("assert", arguments);
       if (!condition) throw new Error(message);
     }
+
     fullpathOf(subpath) {
       this.trace("fullpathOf", arguments);
       if (this.isBrowser) {
@@ -67,7 +68,7 @@
     }
     readUrl(file) {
       this.trace("readUrl", arguments);
-      return require("fs").promises.readFile(this.fullpathOf(file), "utf8");
+      return fetch(this.fullpathOf(file)).then(response => response.text());
     }
     readFile(file) {
       this.trace("readFile", arguments);
@@ -92,11 +93,11 @@
       let factory = undefined;
       Validate_parameters: {
         if (args.length === 1) {
-          this.assert(typeof args[0] === "function", `if args.length is 1 then args[0] must be factory function but «${typeof args[0]}» was found instead on «ModulerV5.prototype.define»`);
+          this.assert(typeof args[0] === "function", `using define: if args.length is 1 then args[0] must be factory function but «${typeof args[0]}» was found instead on «ModulerV5.prototype.define»`);
           factory = args[0];
         } else if (args.length === 2) {
-          this.assert(Array.isArray(args[0]), `if args.length is 2 then args[0] must be array of dependencies but «${typeof args[0]}» was found instead on «ModulerV5.prototype.define»`);
-          this.assert(typeof args[1] === "function", `if args.length is 2 then args[1] must be factory function but «${typeof args[1]}» was found instead on «ModulerV5.prototype.define»`);
+          this.assert(Array.isArray(args[0]), `using define: if args.length is 2 then args[0] must be array of dependencies but «${typeof args[0]}» was found instead on «ModulerV5.prototype.define»`);
+          this.assert(typeof args[1] === "function", `using define: if args.length is 2 then args[1] must be factory function but «${typeof args[1]}» was found instead on «ModulerV5.prototype.define»`);
           dependencies = args[0];
           factory = args[1];
         } else {
@@ -113,7 +114,7 @@
           exports: initialState
         };
         return Promise.all(dependencyPromises).then(resolvedDependencies => {
-          const output = factory(...resolvedDependencies, modulo, modulo.exports);
+          const output = factory(...resolvedDependencies, modulo, modulo.exports, "anonymous directory", "anonymous file", this);
           const returnsUndefined = typeof output === "undefined";
           const isNotInitialState = modulo.exports !== initialState;
           const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
@@ -121,15 +122,56 @@
         });
       }
     }
-    mean(idInput) {
+    mean(...args) {
       this.trace("mean", arguments);
-      this.assert(typeof idInput === "string", "parameter «id» must be string on «ModulerV5.prototype.mean»");
-      const id = this.fullpathOf(idInput);
-      if (id in this.definitions) {
-        return this.definitions[id];
+      let id = undefined;
+      let dependencies = [];
+      let callback = undefined;
+      Validate_and_format_parameters: {
+        if (args.length === 1) {
+          if (typeof args[0] === "function") {
+            callback = args[0];
+          } else if (Array.isArray(args[0])) {
+            return Promise.all(args[0].map(dependency => this.mean(dependency)));
+          } else {
+            this.assert(typeof args[0] === "string", `using mean: if args.length is 1 then args[0] must be id string or factory function but «${typeof args[0]}» was found instead on «ModulerV5.prototype.mean»`);
+            id = args[0];
+          }
+        } else if (args.length === 2) {
+          this.assert(Array.isArray(args[0]), `using mean: if args.length is 2 then args[0] must be dependencies array but «${typeof args[0]}» was found instead on «ModulerV5.prototype.mean»`);
+          this.assert(typeof args[1] === "function", `using mean: if args.length is 2 then args[1] must be factory function but «${typeof args[1]}» was found instead on «ModulerV5.prototype.mean»`);
+          dependencies = args[0];
+          callback = args[1];
+        } else {
+          throw new Error(`using mean: args.length must be between 1 and 2 but «${args.length}» was found instead on «ModulerV5.prototype.mean»`);
+        }
       }
-      // console.log("meaning:", id);
-      return this.importModule(id);
+      if (typeof callback === "function") {
+        Resolve_as_callback: {
+          const dependencyPromises = dependencies.map(dependency => this.mean(dependency));
+          return Promise.all(dependencyPromises).then(resolvedDependencies => {
+            const initialState = {};
+            const modulo = {
+              exports: initialState
+            };
+            let output = callback(...resolvedDependencies, modulo, modulo.exports, "anonymous file", "anonymous directory", this);
+            const returnsUndefined = typeof output === "undefined";
+            const isNotInitialState = modulo.exports !== initialState;
+            const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
+            return modulo.exports = (returnsUndefined && (isNotInitialState || hasNewProperties) ? modulo.exports : output);
+          });
+        }
+      }
+      else if (typeof id === "string") {
+        Resolve_as_id: {
+          id = this.fullpathOf(id);
+          if (id in this.definitions) {
+            return this.definitions[id];
+          }
+          return this.importModule(id);
+        }
+      }
+      throw new Error("No, aquí no debería entrar, esta condición ya ha sido filtrada antes");
     }
   };
 
