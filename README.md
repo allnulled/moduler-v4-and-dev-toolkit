@@ -27,7 +27,9 @@ Sirve para compilar y modular JS.
 Tienes que llevarte las carpetas de:
 
 - `dist/modulerv-4/modulerv-4.dist.js`
+   - expone la global de `DevToolkit`
 - `dist/dev-toolkit/dev-toolkit.dist.js`
+   - expone las globales de `ModulerV4` y de `Dictionary === ModulerV4.Dictionary`
    - y los otros ficheros de la carpeta ([Especificidad 1: El dev-toolkit.dist.js no va solo](#especificidad-1-el-dev-toolkitdistjs-no-va-solo))
    - y las dependencias npm especificadas más abajo ([Especificidad 2: El dev-toolkit.dist.js sí necesita dependencias de npm](#especificidad-2-el-dev-toolkitdistjs-sí-necesita-dependencias-de-npm)).
 
@@ -56,9 +58,10 @@ Este proyecto tiene algunos anteriores dentro, embedidos:
 
 ### API de ModulerV4
 
-La carga de `ModulerV4` expone otra global, `Dictionary` que es una instancia de `ModulerV4` con los parámetros por defecto:
+Para cargar un `ModulerV4`:
 
 ```js
+const Dictionary = ModulerV4.create();
 Dictionary.define("promise/1", function async() {
    await DevToolkit.Time.timeout(0);
    return 1;

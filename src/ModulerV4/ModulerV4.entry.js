@@ -34,7 +34,6 @@
     /*<$=await include("./prototype.define.js")$>*/
     /*<$=await include("./prototype.mean.js")$>*/
   };
-  /*<$=await include("./Dictionary.js")$>*/
   Promise.fromObject = function (obj) {
     const allKeys = Object.keys(obj);
     return Promise.all(Object.values(Object.values(obj))).then(output => {

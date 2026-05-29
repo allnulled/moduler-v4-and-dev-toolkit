@@ -1,6 +1,7 @@
 module.exports = async function ({ DevToolkit, devToolkit, ModulerV4, startTime, titleColumns }) {
   const { assert } = DevToolkit.Testing.Asserter.createLoggerAssert({ startTime, prefix: "ModulerV4".padEnd(titleColumns) });
   assert(1, "ModulerV4");
+  const Dictionary = ModulerV4.create(devToolkit.basedir);
   Test_modules_by_factory: {
     Dictionary.define("module/1", () => 1);
     Dictionary.define("module/2", () => 2);

@@ -1,7 +1,7 @@
 class TjsRender {
   static AsyncFunction = (async function () { }).constructor;
   static beautifyJs(code, options = { indent_size: 1 }) {
-    return require("js-beautify/js").js(code, options === true ? { indent_size: 1 } : options);
+    return require("js-beautify/js").js(code, options === true ? { indent_size: 2 } : options);
   }
   static render(template, injection = {}, options = {}) {
     const args = { ...injection, Tjs };
