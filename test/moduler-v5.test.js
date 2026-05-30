@@ -29,7 +29,7 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
     assert(signatures.signa6 === 77, "can import using signature mean(Function) (point 10)");
   }
   Firma_interna_de_factory_en_mean_Function: {
-    await Dictionary.mean(function(module, exports, __filename, __dirname, dictionary) {
+    await Dictionary.mean(function (module, exports, __filename, __dirname, dictionary) {
       assert(typeof module === "object", "can find module as parameter from mean(Function) (point 2)");
       assert(typeof exports === "object", "can find exports as parameter from mean(Function) (point 3)");
       assert(module.exports === exports, "can find module and exports as parameters from mean(Function) (point 4)");
@@ -39,7 +39,7 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
     })
   }
   Firma_interna_de_factory_en_define_Function: {
-    await Dictionary.define(function(module, exports, __filename, __dirname, dictionary) {
+    await Dictionary.define(function (module, exports, __filename, __dirname, dictionary) {
       assert(typeof module === "object", "can find module as parameter from define(Function) (point 2)");
       assert(typeof exports === "object", "can find exports as parameter from define(Function) (point 3)");
       assert(module.exports === exports, "can find module and exports as parameters from define(Function) (point 4)");
@@ -49,7 +49,7 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
     });
   }
   Firma_interna_de_factory_en_define_Array_Function: {
-    await Dictionary.define([() => 800], function(p1, module, exports, __filename, __dirname, dictionary) {
+    await Dictionary.define([() => 800], function (p1, module, exports, __filename, __dirname, dictionary) {
       assert(p1 === 800, "can find injected parameters from define(Array,Function) (point 1)");
       assert(typeof module === "object", "can find module as parameter from define(Array,Function) (point 2)");
       assert(typeof exports === "object", "can find exports as parameter from define(Array,Function) (point 3)");
@@ -58,5 +58,23 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
       assert(typeof __dirname === "string", "can find __dirname as parameter from define(Array,Function) (point 6)");
       assert(dictionary instanceof ModulerV5, "can find local dictionary as parameter from define(Array,Function) (point 7)");
     });
+  }
+  Normalizacion_de_rutas_y_urls: {
+    const base = "https://888.99/zx2314/base/de/proyecto";
+    const moduler = ModulerV5.create(base);
+    const ejemplos = [
+      ["path/normal.js", `${base}/path/normal.js`],
+      ["/path/absoluto.js", "/path/absoluto.js"],
+      ["./unpunto1.js", `${base}/unpunto1.js`],
+      ["././././unpunto2.js", `${base}/unpunto2.js`],
+      ["../../dospuntos1.js", "https://888.99/zx2314/base/dospuntos1.js"],
+      ["../../../../dospuntos2.js", "https://888.99/dospuntos2.js"],
+      ["../../../../../../dospuntos2.js", "https://dospuntos2.js"],
+    ];
+    for (let i = 0; i < ejemplos.length; i++) {
+      const [ejemplo, expectativa] = ejemplos[i];
+      const normalizado = moduler.normalizationOf(ejemplo);
+      assert(normalizado === expectativa, "can normalize urls and paths with example: " + ejemplo);
+    }
   }
 };
