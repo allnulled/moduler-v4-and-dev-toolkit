@@ -5,13 +5,13 @@
 // signa5.js: ⚫️ mean(path:String)
 // signa6.js: ⚫️ mean(factory:Function)
 
-return Dictionary.define([
-  "signatures/signa1.js",
-  "signatures/signa2.js",
-  "signatures/signa3.js",
-  "signatures/signa4.js",
-  "signatures/signa5.js",
-  "signatures/signa6.js",
+return $dictionary.define([
+  "./signa1.js",
+  "./signa2.js",
+  "./signa3.js",
+  "./signa4.js",
+  "./signa5.js",
+  "./signa6.js",
 ], async function(signa1, signa2, signa3, signa4, signa5, signa6) {
   return {
     status: "ok",

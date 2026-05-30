@@ -1,1 +1,1 @@
-return Dictionary.mean("signatures/signa5-data.js");
+return $dictionary.mean("./signa5-data.js");

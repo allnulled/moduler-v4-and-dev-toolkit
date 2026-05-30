@@ -42,19 +42,19 @@ Conjunto de cláusulas de la especificación.
    - `...dependencies:Array<any>`: dependencias resultas en el orden proporcionado
    - `module:Object`: la fórmula de node.js para usar `module.exports`
    - `exports:Object`: la fórmula de node.js para usar `exports.<prop>`
-      - esto permite usar las firmas `Dictionary.define`, `Dictionary.mean`, etc. para referirse a la instancia local de cada caso
+   - `$dictionary:ModulerV5`: instancia de `ModulerV5` que ha hecho la llamada a `define` o `mean`
+      - esto permite usar las firmas `$dictionary.define`, `$dictionary.mean`, etc. para referirse a la instancia local de cada caso
    - `__filename:String`: ruta completa del fichero actual
    - `__dirname:String`: ruta completa de la carpeta actual
-   - `Dictionary:ModulerV5`: instancia de `ModulerV5` que ha hecho la llamada a `define` o `mean`
 
 
 Su uso quedaría así:
 
 ```js
-Dictionary.define(["./a.js", "./b.js"], function(a, b, module, exports, __filename, __dirname, Dictionary) {
+$dictionary.define(["./a.js", "./b.js"], function(a, b, module, exports, $dictionary, __filename, __dirname) {
     //...
 });
-Dictionary.mean(["./a.js", "./b.js"], function(a, b, module, exports, __filename, __dirname, Dictionary) {
+$dictionary.mean(["./a.js", "./b.js"], function(a, b, module, exports, $dictionary, __filename, __dirname) {
     //...
 });
 ```
@@ -64,15 +64,15 @@ Dictionary.mean(["./a.js", "./b.js"], function(a, b, module, exports, __filename
 - Las variables fantasma son las mismas que las de la función `factory:Function` pero sin dependencias inyectadas:
    - `module:Object`
    - `exports:Object`
+   - `$dictionary:ModulerV5`
    - `__filename:String`
    - `__dirname:String`
-   - `Dictionary:ModulerV5`
 
 
 ### C.Ejemplo.0.1. Instrucciones generales
 
-- Cuando veas un `Dictionary`, considera que es una instancia de `ModulerV5` que está establecida globalmente.
-   - El `Dictionary` no es parte de la especificación, pero se usa como variable sobreentendida en los ejemplos.
+- Cuando veas un `$dictionary`, considera que es una instancia de `ModulerV5` que está establecida **localmente por cada script de dependencia**.
+   - El `$dictionary` no es parte de la especificación, pero se usa como variable sobreentendida en los ejemplos.
 
 ### C.Ejemplo.1. Ejemplo de módulo
 
@@ -84,7 +84,7 @@ En el main empiezas el hilo:
 
 ```js
 // main.js
-const lib = await Dictionary.define("./lib.js");
+const lib = await $dictionary.define("./lib.js");
 ```
 
 Y ahora las 2 opciones. Nótese que no resultan en lo mismo: una devuelve una promesa (b) y la otra un objeto con 2 promesas (a).
@@ -95,10 +95,10 @@ Opción a, sería la más optimizada - porque los vas exponiendo a medida que lo
 
 ```js
 // lib.js
-export.ab = Dictionary.define(["./lib/a.js","./lib/b.js"], function(a, b) {
+export.ab = $dictionary.define(["./lib/a.js","./lib/b.js"], function(a, b) {
     return { a, b };
 });
-export.cd = Dictionary.define(["./lib/c.js","./lib/d.js"], function(c, d) {
+export.cd = $dictionary.define(["./lib/c.js","./lib/d.js"], function(c, d) {
     return { c, d };
 });
 ```
@@ -122,7 +122,7 @@ Opción b, sería la clásica - es más compacta y fácil de gestionar luego por
 
 ```js
 // lib.js
-module.exports = Dictionary.define(["./lib/a.js","./lib/b.js","./lib/c.js","./lib/d.js"], function(a,b,c,d) {
+module.exports = $dictionary.define(["./lib/a.js","./lib/b.js","./lib/c.js","./lib/d.js"], function(a,b,c,d) {
     return {
         ab: { a, b },
         cd: { c, d },

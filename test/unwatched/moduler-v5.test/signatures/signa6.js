@@ -1,1 +1,1 @@
-return Dictionary.mean(_ => 77);
+return $dictionary.mean(_ => 77);

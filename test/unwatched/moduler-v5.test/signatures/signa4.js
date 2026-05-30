@@ -1,1 +1,1 @@
-return Dictionary.mean(["signatures/signa4-part-1.js", "signatures/signa4-part-2.js"]);
+return $dictionary.mean(["./signa4-part-1.js", "./signa4-part-2.js"]);

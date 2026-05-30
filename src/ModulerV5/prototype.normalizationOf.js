@@ -1,4 +1,4 @@
-normalizationOf = function (input) {
+normalizationOf = function (input, debug = false) {
   const parts = (input.startsWith("/") ? input : (this.basedir.replace(/\/+$/g,"") + "/" + input)).split(/(\/+)/g);
   const stack = [];
   Iterating_parts:
@@ -26,5 +26,8 @@ normalizationOf = function (input) {
     stack.push(part);
   }
   const finalUrl = stack.join("");
+  if(debug) {
+    console.log(finalUrl);
+  }
   return finalUrl;
 };

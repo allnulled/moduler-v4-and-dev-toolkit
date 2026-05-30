@@ -1,4 +1,4 @@
 
-⚫️=Pendiente 🔵=Trámite 🔔=Activo ✅=Hecho
+🔴=Pendiente 🟠=Activo 🟩=Hecho 🔵=Trámite 
 
-⚫️ 
+🔴 ...

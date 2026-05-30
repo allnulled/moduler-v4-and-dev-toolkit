@@ -28,7 +28,7 @@ mean(...args) {
       return Promise.all(dependencyPromises).then(resolvedDependencies => {
         const initialState = {};
         const modulo = { exports: initialState };
-        let output = callback(...resolvedDependencies, modulo, modulo.exports, "anonymous file", "anonymous directory", this);
+        let output = callback(...resolvedDependencies, modulo, modulo.exports, this, "anonymous file", "anonymous directory");
         const returnsUndefined = typeof output === "undefined";
         const isNotInitialState = modulo.exports !== initialState;
         const hasNewProperties = 0 !== Object.keys(modulo.exports).length;

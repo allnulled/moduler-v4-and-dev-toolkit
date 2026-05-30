@@ -21,6 +21,8 @@
     /*<$=await include("./prototype.knows.js")$>*/
     /*<$=await include("./prototype.define.js")$>*/
     /*<$=await include("./prototype.mean.js")$>*/
+    /*<$=await include("./prototype.cloneForFile.js")$>*/
+    /*<$=await include("./prototype.cloneForDirectory.js")$>*/
   };
 
   /*<$=await include("./Dictionary.js")$>*/
