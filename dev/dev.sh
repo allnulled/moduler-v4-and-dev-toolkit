@@ -16,7 +16,9 @@ pwd > cwd.txt
     -i "**/coverage/**/*" \
     -i "**/.nyc_output/**/*" \
     -i "**/dist-instrumented/**/*" \
-    -i "**/unwatched/**/*" \
+    -i "**/unwatched/file-watcher/**/*" \
+    -i "**/unwatched/events/**/*" \
+    -i "**/semaphore.*" \
     -d 0 \
     -mf "TODO.md" \
     -e "sh" \

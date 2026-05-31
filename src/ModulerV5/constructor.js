@@ -19,6 +19,7 @@ constructor(...args) {
   let rootdir = null;
   let basedir = null;
   let definitions = null;
+  let cloneRoot = null;
   Step_2_Fulfill_parameters: {
     if (input1 === null) {
       basedir = null;
@@ -27,6 +28,7 @@ constructor(...args) {
       basedir = input1;
       definitions = {};
     } else if (typeof input1 === "object" && input1 instanceof ModulerV5) {
+      cloneRoot = input1;
       rootdir = input1.rootdir;
       basedir = input1.basedir;
       definitions = input1.definitions;
@@ -59,5 +61,6 @@ constructor(...args) {
     this.rootdir = rootdir ?? basedir;
     this.basedir = basedir;
     this.definitions = definitions;
+    this.css = cloneRoot ? cloneRoot.css : this.constructor.CssModuler.create(this);
   }
 }

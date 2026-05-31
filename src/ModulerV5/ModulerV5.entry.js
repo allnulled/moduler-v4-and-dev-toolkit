@@ -5,6 +5,8 @@
 })(function () {
   
   const ModulerV5 = class {
+    static CssModuler = /*<$=await include("./CssModuler/CssModuler.js")$>*/0;
+    static InjectionParser = /*<$=await include("./InjectionParser/InjectionParser.js")$>*/0;
     /*<$=await include("./create.js")$>*/
     /*<$=await include("./constructor.js")$>*/
     /*<$=await include("./inspectToString.js")$>*/
@@ -14,6 +16,7 @@
     /*<$=await include("./prototype.assert.js")$>*/
     /*<$=await include("./prototype.normalizationOf.js")$>*/
     /*<$=await include("./prototype.fullpathOf.js")$>*/
+    /*<$=await include("./prototype.relpathOf.js")$>*/
     /*<$=await include("./prototype.importModule.js")$>*/
     /*<$=await include("./prototype.readPath.js")$>*/
     /*<$=await include("./prototype.readUrl.js")$>*/

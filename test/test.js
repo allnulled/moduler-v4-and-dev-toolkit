@@ -6,6 +6,7 @@ const tests = [];
 
 if(1) tests.push(`${__dirname}/moduler-v4.test.js`);
 if(1) tests.push(`${__dirname}/moduler-v5.test.js`);
+if(1) tests.push(`${__dirname}/moduler-v5.css.test.js`);
 if(1) tests.push(`${__dirname}/dev-toolkit.testing.test.js`);
 if(1) tests.push(`${__dirname}/dev-toolkit.templating.test.js`);
 if(1) tests.push(`${__dirname}/dev-toolkit.tracer.test.js`);

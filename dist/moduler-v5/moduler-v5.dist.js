@@ -5,6 +5,359 @@
 })(function() {
 
   const ModulerV5 = class {
+    static CssModuler = class CssLoader {
+      static create(...args) {
+        return new this(...args);
+      }
+      static fakeCssStyleSheet() {
+        return new class FakeCssStyleSheet {
+          isFake = true;
+          replace(...args) {
+            // console.log("in node.js this does nothing", args)
+          }
+        }();
+      }
+      constructor(moduler) {
+        this.moduler = moduler;
+        this.sheets = {};
+        this.entry = typeof CSSStyleSheet === "function" ? new CSSStyleSheet() : this.constructor.fakeCssStyleSheet();
+        if (!this.entry.isFake) {
+          document.adoptedStyleSheets.push(this.entry);
+        }
+      }
+      assert(condition, message) {
+        if (!condition) throw new Error("AssertionError in CssLoader: " + message);
+      }
+      async add(input1 = null, eventToAdd = {
+        newSheets: {},
+        oldSheets: {},
+        count: 0
+      }) {
+        this.assert(typeof input1 === "string", "on CssModuler.prototype.add: arguments[0] must be string");
+        const id = this.moduler.fullpathOf(input1);
+        if (id in this.sheets) {
+          if (!(id in eventToAdd.oldSheets)) {
+            eventToAdd.oldSheets = [];
+          }
+          eventToAdd.oldSheets[id].push(eventToAdd.count++);
+        } else {
+          const source = await this.moduler.readPath(id);
+          const allRequires = source.match(/(\/\*\@requires\:((?!\*\/).)+\*\/)+(\r|\t|\n| )?/g);
+          const submoduler = this.moduler.cloneForFile(id);
+          const requires = !allRequires ? [] : allRequires.map(match => {
+            const subpath = match.substr("/*@requires:".length).trim().slice(0, -2).trim();
+            return submoduler.fullpathOf(subpath);
+          });
+          const modulo = {
+            id,
+            source,
+            requires
+          };
+          this.sheets[id] = modulo;
+          eventToAdd.newSheets[id] = eventToAdd.count++;
+          for (let index = 0; index < requires.length; index++) {
+            const subid = requires[index];
+            await this.add(subid, eventToAdd);
+          }
+        }
+        return eventToAdd;
+      }
+      _sortSheets(eventToSync) {
+        const dependencies = [];
+        const visited = new Set();
+        const visit = (sheetId) => {
+          if (visited.has(sheetId)) {
+            return;
+          }
+          visited.add(sheetId);
+          const sheet = this.sheets[sheetId];
+          if (!sheet) {
+            return;
+          }
+          for (const dependencyId of sheet.requires) {
+            visit(dependencyId);
+          }
+          dependencies.push(sheet);
+        };
+        for (const sheetId in this.sheets) {
+          visit(sheetId);
+        }
+        eventToSync.dependencies = dependencies;
+        eventToSync.counter = dependencies.length;
+      }
+      _generateSource(eventToSync) {
+        let css = "";
+        for (let index = 0; index < eventToSync.dependencies.length; index++) {
+          const dependency = eventToSync.dependencies[index];
+          css += `/*!original:${this.moduler.relpathOf(dependency.id)}*/\n`;
+          css += `/*!order:${index+1}*/\n`;
+          css += `${dependency.source}\n\n`;
+        }
+        eventToSync.source = css;
+      }
+      async _synchronizeSource(eventToSync) {
+        // @BROWSER pero polifileado:
+        await this.entry.replace(eventToSync.source);
+      }
+      async _exportSource(eventToSync, options) {
+        if (options.outFile) {
+          await require("fs").promises.writeFile(this.moduler.fullpathOf(outFile), eventToSync.source, "utf8");
+        }
+      }
+      remove(input1) {
+        const id = this.moduler.fullpathOf(input1);
+        this.assert(id in this.sheets, "cannot remove sheet because it is not added: " + id);
+        delete this.sheets[id];
+        return this;
+      }
+      async synchronize(options = {
+        outFile: false
+      }) {
+        const eventToSync = {
+          counter: 0,
+          dependencies: [],
+        };
+        await this._sortSheets(eventToSync, options);
+        await this._generateSource(eventToSync, options);
+        await this._synchronizeSource(eventToSync, options);
+        await this._exportSource(eventToSync, options);
+        return eventToSync;
+      }
+    };
+    static InjectionParser = class InjectionParser {
+      static TOKENS = [
+        "/* @inject.source(",
+        "/* @inject.source.string(",
+        "/* @inject.template(",
+        "/* @inject.template.string(",
+        "/* @inject.module(",
+        "// @inject.source(",
+        "// @inject.source.string(",
+        "// @inject.template(",
+        "// @inject.template.string(",
+        "// @inject.module(",
+        "inject.source(",
+        "inject.source.string(",
+        "inject.template(",
+        "inject.template.string(",
+        "inject.module(",
+      ];
+      static create(code) {
+        return new this(code);
+      }
+      constructor(code) {
+        this.code = code;
+        this.i = 0;
+      }
+      parse() {
+        const results = [];
+        this.i = 0;
+        while (!this.eof()) {
+          const tokenInfo = this.findNextToken();
+          if (!tokenInfo) {
+            break;
+          }
+          const {
+            token,
+            start
+          } = tokenInfo;
+          this.i = start + token.length;
+          const tokenStart = start;
+          this.skipSpaces();
+          const path = this.parseString();
+          this.skipSpaces();
+          let options = null;
+          if (this.peek() === ",") {
+            this.next();
+            this.skipSpaces();
+            options = this.parseBalanced();
+          }
+          this.skipSpaces();
+          if (this.peek() === ")") {
+            this.next();
+          }
+          // cerrar comentario multilinea
+          this.skipSpaces();
+          if (
+            token.startsWith("/*") &&
+            this.code.slice(this.i, this.i + 2) === "*/"
+          ) {
+            this.i += 2;
+            Linter_bypassers: {
+              if (this.code.slice(this.i, this.i + 1) === "0") {
+                this.i += 1;
+              }
+              if (this.code.slice(this.i, this.i + 1) === "nulo") {
+                this.i += 4;
+              }
+            }
+          }
+          const tokenEnd = this.i;
+          const raw = this.code.slice(tokenStart, tokenEnd);
+          const cleanStart = raw.replace(/^((\/\/)|(\/\*))( )*(\@)?/g, "");
+          results.push({
+            path,
+            options,
+            method: cleanStart.substr(0, cleanStart.indexOf("(")),
+            start: tokenStart,
+            end: tokenEnd,
+            raw: raw,
+          });
+        }
+        return results;
+      }
+      // =====================================================
+      // TOKEN SEARCH
+      // =====================================================
+      findNextToken() {
+        let bestIndex = Infinity;
+        let bestToken = null;
+        for (const token of this.constructor.TOKENS) {
+          const idx = this.code.indexOf(token, this.i);
+          if (idx !== -1 && idx < bestIndex) {
+            bestIndex = idx;
+            bestToken = token;
+          }
+        }
+        if (bestToken === null) {
+          return null;
+        }
+        return {
+          token: bestToken,
+          start: bestIndex
+        };
+      }
+      // =====================================================
+      // CORE
+      // =====================================================
+      eof() {
+        return this.i >= this.code.length;
+      }
+      peek(offset = 0) {
+        return this.code[this.i + offset];
+      }
+      next() {
+        return this.code[this.i++];
+      }
+      skipSpaces() {
+        while (
+          !this.eof() &&
+          /\s/.test(this.peek())
+        ) {
+          this.i++;
+        }
+      }
+      // =====================================================
+      // STRING
+      // =====================================================
+      parseString() {
+        const quote = this.peek();
+        if (
+          quote !== '"' &&
+          quote !== "'" &&
+          quote !== "`"
+        ) {
+          throw new Error(`Expected string at ${this.i}`);
+        }
+        this.next();
+        let result = "";
+        while (!this.eof()) {
+          const c = this.next();
+          // escape
+          if (c === "\\") {
+            result += c;
+            if (!this.eof()) {
+              result += this.next();
+            }
+            continue;
+          }
+          // close
+          if (c === quote) {
+            return result;
+          }
+          result += c;
+        }
+        throw new Error("Unexpected EOF while parsing string");
+      }
+      // =====================================================
+      // BALANCED
+      // =====================================================
+      parseBalanced() {
+        const start = this.peek();
+        if (!"([{".includes(start)) {
+          throw new Error(`Expected balanced structure at ${this.i}`);
+        }
+        const stack = [start];
+        let result = this.next();
+        while (!this.eof()) {
+          const c = this.next();
+          result += c;
+          // ==========================================
+          // STRING MODE
+          // ==========================================
+          if (
+            c === '"' ||
+            c === "'" ||
+            c === "`"
+          ) {
+            result += this.consumeString(c);
+            continue;
+          }
+          // ==========================================
+          // OPEN
+          // ==========================================
+          if (
+            c === "(" ||
+            c === "[" ||
+            c === "{"
+          ) {
+            stack.push(c);
+            continue;
+          }
+          // ==========================================
+          // CLOSE
+          // ==========================================
+          if (
+            c === ")" ||
+            c === "]" ||
+            c === "}"
+          ) {
+            const last =
+              stack[stack.length - 1];
+            if (!this.matches(last, c)) {
+              throw new Error(`Unexpected closing token "${c}" at ${this.i}`);
+            }
+            stack.pop();
+            if (stack.length === 0) {
+              return result;
+            }
+          }
+        }
+        throw new Error("Unexpected EOF while parsing balanced structure");
+      }
+      consumeString(quote) {
+        let result = "";
+        while (!this.eof()) {
+          const c = this.next();
+          result += c;
+          if (c === "\\") {
+            if (!this.eof()) {
+              result += this.next();
+            }
+            continue;
+          }
+          if (c === quote) {
+            return result;
+          }
+        }
+        throw new Error("Unexpected EOF inside string");
+      }
+      matches(open, close) {
+        return (
+          (open === "(" && close === ")") ||
+          (open === "[" && close === "]") || (open === "{" && close === "}"));
+      }
+    };
     static create(...args) {
       return new this(...args);
     }
@@ -29,6 +382,7 @@
       let rootdir = null;
       let basedir = null;
       let definitions = null;
+      let cloneRoot = null;
       Step_2_Fulfill_parameters: {
         if (input1 === null) {
           basedir = null;
@@ -37,6 +391,7 @@
           basedir = input1;
           definitions = {};
         } else if (typeof input1 === "object" && input1 instanceof ModulerV5) {
+          cloneRoot = input1;
           rootdir = input1.rootdir;
           basedir = input1.basedir;
           definitions = input1.definitions;
@@ -69,6 +424,7 @@
         this.rootdir = rootdir ?? basedir;
         this.basedir = basedir;
         this.definitions = definitions;
+        this.css = cloneRoot ? cloneRoot.css : this.constructor.CssModuler.create(this);
       }
     }
     static inspectToString(args, debugLevel) {
@@ -91,7 +447,7 @@
 
     assert(condition, message) {
       this.trace("assert", arguments);
-      if (!condition) throw new Error(message);
+      if (!condition) throw new Error("AssertionError in ModulerV5: " + message);
     }
     normalizationOf = function(input, debug = false) {
       const parts = (input.startsWith("/") ? input : (this.basedir.replace(/\/+$/g, "") + "/" + input)).split(/(\/+)/g);
@@ -132,6 +488,13 @@
         throw new Error("Must polyfill method «fullpathOf» to support browser environment");
       }
       return require("path").resolve(this.basedir, subpath);
+    }
+    relpathOf(subpath) {
+      this.trace("relpathOf", arguments);
+      if (this.isBrowser) {
+        throw new Error("Must polyfill method «fullpathOf» to support browser environment");
+      }
+      return "@/" + this.fullpathOf(subpath).replace(this.rootdir, "").replace(/^\//g, "");
     }
     importModule(subpath, injection = {}) {
       this.trace("importModule", arguments);
