@@ -8,10 +8,11 @@
       🟩 para que cada bundle final no líe al compilador
    🟩 centralizar llamada a evalscript
       🟩 estaba en define, mean y importModule
-   🔴 por extensión .css
-      🔴 que solo afecte al moduler.css
-      🔴 pero que funcione con el css el define y el mean también
-   🔴 tests
+   🟩 poder usar define y mean contra extensión .css
+      🟩 que solo afecte al ModulerV5.prototype.css (instancia de CssModuler)
+      🟩 pero que funcione con el css el define y el mean también
+      🟩 test en moduler-v5.css-dependency.test.js
+   🟩 tests
 🔴 inject parser
    🔴 para meter plantillas html
    🔴 en todas las formas legacy posibles

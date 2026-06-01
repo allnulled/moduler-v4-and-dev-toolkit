@@ -1,7 +1,7 @@
 module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime, titleColumns }) {
-  const { assert } = DevToolkit.Testing.Asserter.createLoggerAssert({ startTime, prefix: "ModulerV5".padEnd(titleColumns) });
-  assert(1, "CssModuler/ModulerV5");
-  const Dictionary = ModulerV5.create(devToolkit.fullpathOf("moduler-v5.test/css-moduler"));
+  const { assert } = DevToolkit.Testing.Asserter.createLoggerAssert({ startTime, prefix: "ModulerV5/CssModuler/css-output".padEnd(titleColumns) });
+  assert(1, "ModulerV5/CssModuler/css-output");
+  const Dictionary = ModulerV5.create(devToolkit.fullpathOf("moduler-v5.test/css-output"));
   await Dictionary.mean("./css-example-1.js");
   const info = await Dictionary.css.synchronize();
   assert(info.source === `/*!original:@/css/base/reset.css*/

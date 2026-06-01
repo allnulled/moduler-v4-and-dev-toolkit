@@ -6,6 +6,7 @@
   const Tracer = /*<$=await include("./Tracer/Tracer.js")$>*/0;
   return class DevToolkit {
     static Tracer = Tracer;
+    static Utils = /*<$=await include("./Utils/Utils.js")$>*/0;
     static CommandLine = /*<$=await include("./CommandLine/CommandLine.js")$>*/0;
     static Testing = /*<$=await include("./Testing/Testing.js")$>*/0;
     static Events = /*<$=await include("./Events/Events.js")$>*/0;

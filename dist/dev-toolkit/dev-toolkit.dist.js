@@ -31,6 +31,12 @@
   };
   return class DevToolkit {
     static Tracer = Tracer;
+    static Utils = class Utils {
+      static die(...args) {
+        console.log(...args);
+        process.exit(1);
+      }
+    };
     static CommandLine = class CommandLine {
       static Colors = require(__dirname + "/refrescador.api.dist.js").colors;
       static printError(error) {
