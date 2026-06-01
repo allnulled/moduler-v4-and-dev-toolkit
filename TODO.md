@@ -6,8 +6,8 @@
       🟩 por el ModulerV5.prototype.normalizationOf (el fullpathOf pasa al normalization igual)
    🟩 css ahora integra los comentarios con @requires desactivados con !requires
       🟩 para que cada bundle final no líe al compilador
-   🔴 centralizar llamada a evalscript
-      🔴 estaba en define, mean y importModule
+   🟩 centralizar llamada a evalscript
+      🟩 estaba en define, mean y importModule
    🔴 por extensión .css
       🔴 que solo afecte al moduler.css
       🔴 pero que funcione con el css el define y el mean también
