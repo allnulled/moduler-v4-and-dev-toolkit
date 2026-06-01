@@ -11,6 +11,7 @@
     /*<$=await include("./constructor.js")$>*/
     /*<$=await include("./inspectToString.js")$>*/
     /*<$=await include("./stringify.js")$>*/
+    /*<$=await include("./resolvePath.js")$>*/
     /*<$=await include("./prototype.trace.js")$>*/
     /*<$=await include("./prototype.definitions.js")$>*/
     /*<$=await include("./prototype.assert.js")$>*/
