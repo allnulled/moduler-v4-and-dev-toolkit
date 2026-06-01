@@ -17,6 +17,9 @@
           }
         }();
       }
+      static symbols = {
+        REQUIRES_REGEX: /(\/\*\@requires\:((?!\*\/).)+\*\/)+(\r|\t|\n| )?/g
+      };
       constructor(moduler) {
         this.moduler = moduler;
         this.sheets = {};
@@ -42,7 +45,7 @@
           eventToAdd.oldSheets[id].push(eventToAdd.count++);
         } else {
           const source = await this.moduler.readPath(id);
-          const allRequires = source.match(/(\/\*\@requires\:((?!\*\/).)+\*\/)+(\r|\t|\n| )?/g);
+          const allRequires = source.match(this.constructor.symbols.REQUIRES_REGEX);
           const submoduler = this.moduler.cloneForFile(id);
           const requires = !allRequires ? [] : allRequires.map(match => {
             const subpath = match.substr("/*@requires:".length).trim().slice(0, -2).trim();
@@ -91,7 +94,7 @@
           const dependency = eventToSync.dependencies[index];
           css += `/*!original:${this.moduler.relpathOf(dependency.id)}*/\n`;
           css += `/*!order:${index+1}*/\n`;
-          css += `${dependency.source}\n\n`;
+          css += `${dependency.source.replace(this.constructor.symbols.REQUIRES_REGEX, match => "/*!" + match.substr(3))}\n\n`;
         }
         eventToSync.source = css;
       }

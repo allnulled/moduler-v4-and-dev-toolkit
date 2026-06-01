@@ -10,7 +10,7 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
 
 /*!original:@/css/base.css*/
 /*!order:2*/
-/*@requires:./base/reset.css*/
+/*!requires:./base/reset.css*/
 
 
 /*!original:@/css/framework/box.css*/
@@ -35,16 +35,16 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
 
 /*!original:@/css/framework/table.css*/
 /*!order:8*/
-/*@requires:./table/header.css*/
-/*@requires:./table/footer.css*/
-/*@requires:./table/row.css*/
-/*@requires:./table/column.css*/
+/*!requires:./table/header.css*/
+/*!requires:./table/footer.css*/
+/*!requires:./table/row.css*/
+/*!requires:./table/column.css*/
 
 
 /*!original:@/css/framework.css*/
 /*!order:9*/
-/*@requires:./framework/box.css*/
-/*@requires:./framework/table.css*/
+/*!requires:./framework/box.css*/
+/*!requires:./framework/table.css*/
 
 
 /*!original:@/css/application.css*/
@@ -57,10 +57,10 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
 
 /*!original:@/css/entry.css*/
 /*!order:12*/
-/*@requires:./base.css*/
-/*@requires:./framework.css*/
-/*@requires:./application.css*/
-/*@requires:./theme.css*/
+/*!requires:./base.css*/
+/*!requires:./framework.css*/
+/*!requires:./application.css*/
+/*!requires:./theme.css*/
 
 `, "Can bundle css modules exactly as expected");
 };

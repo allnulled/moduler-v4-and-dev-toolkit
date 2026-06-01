@@ -1,6 +1,7 @@
 class CssLoader {
   /*<$=await include("./create.js")$>*/
   /*<$=await include("./fakeCssStyleSheet.js")$>*/
+  /*<$=await include("./symbols.js")$>*/
   /*<$=await include("./constructor.js")$>*/
   /*<$=await include("./prototype.assert.js")$>*/
   /*<$=await include("./prototype.add.js")$>*/

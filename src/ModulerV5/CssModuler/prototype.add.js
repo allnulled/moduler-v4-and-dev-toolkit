@@ -8,7 +8,7 @@ async add(input1 = null, eventToAdd = { newSheets: {}, oldSheets: {}, count: 0 }
     eventToAdd.oldSheets[id].push(eventToAdd.count++);
   } else {
     const source = await this.moduler.readPath(id);
-    const allRequires = source.match(/(\/\*\@requires\:((?!\*\/).)+\*\/)+(\r|\t|\n| )?/g);
+    const allRequires = source.match(this.constructor.symbols.REQUIRES_REGEX);
     const submoduler = this.moduler.cloneForFile(id);
     const requires = !allRequires ? [] : allRequires.map(match => {
       const subpath = match.substr("/*@requires:".length).trim().slice(0, -2).trim();

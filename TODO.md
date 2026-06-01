@@ -4,6 +4,8 @@
 🟩 rutas relativas al rootdir (no al basedir) con @/
    🟩 integrar en moduler-v5
       🟩 por el ModulerV5.prototype.normalizationOf (el fullpathOf pasa al normalization igual)
+   🟩 css ahora integra los comentarios con @requires desactivados con !requires
+      🟩 para que cada bundle final no líe al compilador
    🔴 por extensión .css
    🔴 tests
 🔴 inject parser
