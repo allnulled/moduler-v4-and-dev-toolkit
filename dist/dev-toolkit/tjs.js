@@ -6,7 +6,7 @@ class TjsRender {
   static render(template, injection = {}, options = {}) {
     const args = { ...injection, Tjs };
     const renderer = this.createRenderer(template, options, Object.keys(args))
-    if (options.async) {
+    if(options.async) {
       return renderer(...Object.values(args)).then(newSource => {
         if (options.beautify) {
           newSource = TjsRender.beautifyJs(newSource, options.beautify);
@@ -119,8 +119,14 @@ class TjsReader {
   static readFile(file) {
     return require("fs").promises.readFile(file, "utf8");
   }
+  static readFileAsString(file) {
+    return require("fs").promises.readFile(file, "utf8").then(source => JSON.stringify(source));
+  }
   static readFileSync(file) {
     return require("fs").readFileSync(file, "utf8");
+  }
+  static readFileSyncAsString(file) {
+    return JSON.stringify(require("fs").readFileSync(file, "utf8"));
   }
   static readUrl(url) {
     return fetch(url, { method: "GET" }).then(response => response.text());
@@ -156,6 +162,10 @@ class Tjs {
     this.renderUrl = TjsReader.renderUrl;
     this.renderFile = TjsReader.renderFile;
     this.renderFileSync = TjsReader.renderFileSync;
+    this.readFile = TjsReader.readFile;
+    this.readFileAsString = TjsReader.readFileAsString;
+    this.readFileSync = TjsReader.readFileSync;
+    this.readFileSyncAsString = TjsReader.readFileSyncAsString;
     this.createRenderer = TjsRender.createRenderer;
     this.createRendererSource = TjsRender.createRendererSource;
   }
@@ -167,10 +177,13 @@ class Tjs {
   }
   fullpathOf(file, relativeDir = false) {
     this.constructor.assert(typeof file === "string", "required file as string on Tjs.prototype.fullpathOf");
-    if (relativeDir && file.startsWith("./")) {
+    if(file.startsWith("./")) {
       return require("path").resolve(relativeDir, file);
     }
     return require("path").resolve(this.basedir, file);
+  }
+  directoryOf(file) {
+    return require("path").dirname(this.fullpathOf(file));
   }
   renderFileSync(file, args, options = {}) {
     return this.constructor.renderFileSync(this.fullpathOf(file), this.generateParameters(args, file, options), options);
@@ -178,25 +191,47 @@ class Tjs {
   renderFile(file, args, options = {}) {
     return this.constructor.renderFile(this.fullpathOf(file), this.generateParameters(args, file, options), { ...options, async: true });
   }
+  readFileSync(file) {
+    return this.constructor.readFileSync(this.fullpathOf(file));
+  }
+  readFile(file) {
+    return this.constructor.readFile(this.fullpathOf(file));
+  }
+  readFileAsString(file) {
+    return this.constructor.readFileAsString(this.fullpathOf(file));
+  }
+  readFileSyncAsString(file) {
+    return this.constructor.readFileSyncAsString(this.fullpathOf(file));
+  }
+  readFileAsString(file) {
+    return this.constructor.readFileAsString(this.fullpathOf(file));
+  }
   generateParameters(args, file, options) {
+    const fullfilepath = this.fullpathOf(file);
+    const fulldirpath = require("path").dirname(fullfilepath);
     return {
-      ...args,
-      tjs: this,
-      __filename: this.fullpathOf(file),
-      includeSync: (targetFile, ...others) => {
-        return this.renderFileSync(this.fullpathOf(targetFile, require("path").dirname(file)), ...others);
-      },
-      include: (targetFile, ...others) => {
-        Hack_para_crear_automaticamente_los_ficheros_que_no_encuentre: {
-          const fullpathTarget = this.fullpathOf(targetFile, require("path").dirname(file));
-          try {
-            require("fs").readFileSync(fullpathTarget);
-          } catch (error) {
-            require("fs").writeFileSync(fullpathTarget, "", "utf8");
-          }
-        }
-        return this.renderFile(this.fullpathOf(targetFile, require("path").dirname(file)), ...others);
-      },
+        ...args,
+        tjs: this,
+        __dirname: fulldirpath,
+        __filename: fullfilepath,
+        stringifyFile: (targetFile) => {
+          return this.readFileAsString(this.fullpathOf(targetFile, fulldirpath));
+        },
+        stringifyFileSync: (targetFile) => {
+          return this.readFileSyncAsString(this.fullpathOf(targetFile, fulldirpath));
+        },
+        pasteFile: (targetFile) => {
+          return this.readFile(this.fullpathOf(targetFile, fulldirpath));
+        },
+        pasteFileSync: (targetFile) => {
+          return this.readFileSync(this.fullpathOf(targetFile, fulldirpath));
+        },
+        includeSync: (targetFile, ...others) => {
+          return this.renderFileSync(this.fullpathOf(targetFile, fulldirpath), ...others);
+        },
+        include: (targetFile, ...others) => {
+          return this.renderFile(this.fullpathOf(targetFile, fulldirpath), ...others);
+        },
     };
   }
 }

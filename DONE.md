@@ -1,3 +1,23 @@
+🟩 Iniciado en: 19:28pm 01/06/2026
+   🟩 soporte a html con rutas relativas
+      🟩 dejar un ejemplo de cómo inyectar una plantilla html con tjs
+      🟩 en dev-toolkit.templating.test.js
+      🟩 se puede usar stringifyFile y stringifyFileSync dentro de los ficheros importados por `DevToolkit.templating.tjs.renderFile`
+      🟩 se han añadido también pasteFile y pasteFileSync
+      🟩 tests
+      🟩 Acabado en: 20:37pm 01/05/2026
+🟩 rutas relativas al rootdir (no al basedir) con @/
+   🟩 integrar en moduler-v5
+      🟩 por el ModulerV5.prototype.normalizationOf (el fullpathOf pasa al normalization igual)
+   🟩 css ahora integra los comentarios con @requires desactivados con !requires
+      🟩 para que cada bundle final no líe al compilador
+   🟩 centralizar llamada a evalscript
+      🟩 estaba en define, mean y importModule
+   🟩 poder usar define y mean contra extensión .css
+      🟩 que solo afecte al ModulerV5.prototype.css (instancia de CssModuler)
+      🟩 pero que funcione con el css el define y el mean también
+      🟩 test en moduler-v5.css-dependency.test.js
+   🟩 tests
 🟩 Iniciado en: 11:00am 30/05/2026
   🟩 Inyectar `$dictionary` que tenga el `basedir` del fichero
     🟩 Que pueda usarse para llamar al `define` y al `mean` usando rutas relativas al fichero

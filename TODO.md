@@ -1,24 +1,6 @@
 
 🔴=Pendiente 🟠=Activo 🟩=Hecho 🔵=Trámite 
 
-🟩 rutas relativas al rootdir (no al basedir) con @/
-   🟩 integrar en moduler-v5
-      🟩 por el ModulerV5.prototype.normalizationOf (el fullpathOf pasa al normalization igual)
-   🟩 css ahora integra los comentarios con @requires desactivados con !requires
-      🟩 para que cada bundle final no líe al compilador
-   🟩 centralizar llamada a evalscript
-      🟩 estaba en define, mean y importModule
-   🟩 poder usar define y mean contra extensión .css
-      🟩 que solo afecte al ModulerV5.prototype.css (instancia de CssModuler)
-      🟩 pero que funcione con el css el define y el mean también
-      🟩 test en moduler-v5.css-dependency.test.js
-   🟩 tests
-🔴 inject parser
-   🔴 para meter plantillas html
-   🔴 en todas las formas legacy posibles
-   🔴 sin cachear strings innecesariamente
-   🔴 por eso no van al modulerv5 sino al devtoolkit
-   🔴 tests
 🔴 devtoolkit loop:
    🔴 flujo de touch js, touch css, touch html, touch ts
    🔴 flujo js y css:
@@ -37,3 +19,12 @@
    🔴 recuperar el concatenador a json/md
    🔴 empezar proyecto (sin cli, con un dev.sh)
    🔴 src, dist, test/unit, dev/touch.js, guide
+
+opcional:
+
+🔴 inject parser
+   🔴 para meter plantillas html
+   🔴 en todas las formas legacy posibles
+   🔴 sin cachear strings innecesariamente
+   🔴 por eso no van al modulerv5 sino al devtoolkit
+   🔴 tests

@@ -1,4 +1,4 @@
-const Tjs = require(`${__dirname}/lib/tjs/tjs.js`);
+const Tjs = require(`${__dirname}/../dist/dev-toolkit/tjs.js`);
 const fs = require("fs");
 require("js-beautify/js");
 

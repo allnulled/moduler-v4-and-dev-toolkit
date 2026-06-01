@@ -1,7 +1,7 @@
 callModuleFactory(dependencyPromises, factory, submoduler = null, filename = null, dirname = null) {
   if(typeof filename === "string" && filename.endsWith(".css")) {
     return this.css.add(filename);
-  } 
+  }
   const initialState = {};
   const modulo = { exports: initialState };
   return Promise.all(dependencyPromises).then(async resolvedDependencies => {
