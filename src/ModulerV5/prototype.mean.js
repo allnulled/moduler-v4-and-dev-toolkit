@@ -25,15 +25,7 @@ mean(...args) {
   if (typeof callback === "function") {
     Resolve_as_callback: {
       const dependencyPromises = dependencies.map(dependency => this.mean(dependency));
-      return Promise.all(dependencyPromises).then(resolvedDependencies => {
-        const initialState = {};
-        const modulo = { exports: initialState };
-        let output = callback(...resolvedDependencies, modulo, modulo.exports, this, "anonymous file", "anonymous directory");
-        const returnsUndefined = typeof output === "undefined";
-        const isNotInitialState = modulo.exports !== initialState;
-        const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
-        return modulo.exports = (returnsUndefined && (isNotInitialState || hasNewProperties) ? modulo.exports : output);
-      });
+      return this.callModuleFactory(dependencyPromises, callback);
     }
   } else if (typeof id === "string") {
     Resolve_as_id: {

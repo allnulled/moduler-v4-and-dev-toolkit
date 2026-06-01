@@ -20,14 +20,6 @@ define(...args) {
     dependencyPromises = dependencies.map(dependency => this.mean(dependency));
   }
   Resolve_module: {
-    const initialState = {};
-    const modulo = {exports: initialState};
-    return Promise.all(dependencyPromises).then(resolvedDependencies => {
-      const output = factory(...resolvedDependencies, modulo, modulo.exports, this, "anonymous directory", "anonymous file");
-      const returnsUndefined = typeof output === "undefined";
-      const isNotInitialState = modulo.exports !== initialState;
-      const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
-      return modulo.exports = (returnsUndefined && (isNotInitialState || hasNewProperties) ? modulo.exports : output);
-    });
+    return this.callModuleFactory(dependencyPromises, factory);
   }
 }

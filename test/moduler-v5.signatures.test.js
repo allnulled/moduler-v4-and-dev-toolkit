@@ -33,8 +33,8 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
       assert(typeof module === "object", "Can find module as parameter from mean(Function) (point 2)");
       assert(typeof exports === "object", "Can find exports as parameter from mean(Function) (point 3)");
       assert(module.exports === exports, "Can find module and exports as parameters from mean(Function) (point 4)");
-      assert(typeof __filename === "string", "Can find __filename as parameter from mean(Function) (point 5)");
-      assert(typeof __dirname === "string", "Can find __dirname as parameter from mean(Function) (point 6)");
+      assert(__filename === null, "Can find __filename as parameter from mean(Function) (point 5)");
+      assert(__dirname === null, "Can find __dirname as parameter from mean(Function) (point 6)");
       assert(dictionary instanceof ModulerV5, "Can find local dictionary as parameter from mean(Function) (point 7)");
     })
   }
@@ -43,8 +43,8 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
       assert(typeof module === "object", "Can find module as parameter from define(Function) (point 2)");
       assert(typeof exports === "object", "Can find exports as parameter from define(Function) (point 3)");
       assert(module.exports === exports, "Can find module and exports as parameters from define(Function) (point 4)");
-      assert(typeof __filename === "string", "Can find __filename as parameter from define(Function) (point 5)");
-      assert(typeof __dirname === "string", "Can find __dirname as parameter from define(Function) (point 6)");
+      assert(__filename === null, "Can find __filename as parameter from define(Function) (point 5)");
+      assert(__dirname === null, "Can find __dirname as parameter from define(Function) (point 6)");
       assert(dictionary instanceof ModulerV5, "Can find local dictionary as parameter from define(Function) (point 7)");
     });
   }
@@ -54,8 +54,8 @@ module.exports = async function ({ DevToolkit, devToolkit, ModulerV5, startTime,
       assert(typeof module === "object", "Can find module as parameter from define(Array,Function) (point 2)");
       assert(typeof exports === "object", "Can find exports as parameter from define(Array,Function) (point 3)");
       assert(module.exports === exports, "Can find module and exports as parameters from define(Array,Function) (point 4)");
-      assert(typeof __filename === "string", "Can find __filename as parameter from define(Array,Function) (point 5)");
-      assert(typeof __dirname === "string", "Can find __dirname as parameter from define(Array,Function) (point 6)");
+      assert(__filename === null, "Can find __filename as parameter from define(Array,Function) (point 5)");
+      assert(__dirname === null, "Can find __dirname as parameter from define(Array,Function) (point 6)");
       assert(dictionary instanceof ModulerV5, "Can find local dictionary as parameter from define(Array,Function) (point 7)");
     });
   }

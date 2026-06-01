@@ -27,6 +27,7 @@
     /*<$=await include("./prototype.mean.js")$>*/
     /*<$=await include("./prototype.cloneForFile.js")$>*/
     /*<$=await include("./prototype.cloneForDirectory.js")$>*/
+    /*<$=await include("./prototype.callModuleFactory.js")$>*/
   };
 
   /*<$=await include("./Dictionary.js")$>*/

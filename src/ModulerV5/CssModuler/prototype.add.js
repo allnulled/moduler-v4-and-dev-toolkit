@@ -14,8 +14,8 @@ async add(input1 = null, eventToAdd = { newSheets: {}, oldSheets: {}, count: 0 }
       const subpath = match.substr("/*@requires:".length).trim().slice(0, -2).trim();
       return submoduler.fullpathOf(subpath);
     });
-    const modulo = { id, source, requires };
-    this.sheets[id] = modulo;
+    const moduloCss = { id, source, requires };
+    this.sheets[id] = moduloCss;
     eventToAdd.newSheets[id] = eventToAdd.count++;
     for (let index = 0; index < requires.length; index++) {
       const subid = requires[index];

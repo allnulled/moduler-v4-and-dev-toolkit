@@ -51,12 +51,12 @@
             const subpath = match.substr("/*@requires:".length).trim().slice(0, -2).trim();
             return submoduler.fullpathOf(subpath);
           });
-          const modulo = {
+          const moduloCss = {
             id,
             source,
             requires
           };
-          this.sheets[id] = modulo;
+          this.sheets[id] = moduloCss;
           eventToAdd.newSheets[id] = eventToAdd.count++;
           for (let index = 0; index < requires.length; index++) {
             const subid = requires[index];
@@ -524,20 +524,8 @@
       this.trace("importModule", arguments);
       return this.readPath(subpath).then(source => {
         const asyncFunction = new(async function() {}).constructor(...Object.keys(injection), "module", "exports", "$dictionary", "__filename", "__dirname", source);
-        this.trace("importModule::evaluating JS", []);
-        // console.log(`\n${source}\n`);
-        Resolve_module: {
-          const initialState = {};
-          const modulo = {
-            exports: initialState
-          };
-          return asyncFunction(...Object.values(injection), modulo, modulo.exports, this.cloneForFile(subpath), subpath, this.normalizationOf(subpath + "/..")).then(output => {
-            const returnsUndefined = typeof output === "undefined";
-            const isNotInitialState = modulo.exports !== initialState;
-            const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
-            return modulo.exports = (returnsUndefined && (isNotInitialState || hasNewProperties) ? modulo.exports : output);
-          });
-        }
+        this.trace("importModule::evaluating JS", [], 2);
+        return this.callModuleFactory(Object.values(injection), asyncFunction, this.cloneForFile(subpath), subpath, this.normalizationOf(subpath + "/.."));
       });
     }
     readPath(file) {
@@ -587,17 +575,7 @@
         dependencyPromises = dependencies.map(dependency => this.mean(dependency));
       }
       Resolve_module: {
-        const initialState = {};
-        const modulo = {
-          exports: initialState
-        };
-        return Promise.all(dependencyPromises).then(resolvedDependencies => {
-          const output = factory(...resolvedDependencies, modulo, modulo.exports, this, "anonymous directory", "anonymous file");
-          const returnsUndefined = typeof output === "undefined";
-          const isNotInitialState = modulo.exports !== initialState;
-          const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
-          return modulo.exports = (returnsUndefined && (isNotInitialState || hasNewProperties) ? modulo.exports : output);
-        });
+        return this.callModuleFactory(dependencyPromises, factory);
       }
     }
     mean(...args) {
@@ -627,17 +605,7 @@
       if (typeof callback === "function") {
         Resolve_as_callback: {
           const dependencyPromises = dependencies.map(dependency => this.mean(dependency));
-          return Promise.all(dependencyPromises).then(resolvedDependencies => {
-            const initialState = {};
-            const modulo = {
-              exports: initialState
-            };
-            let output = callback(...resolvedDependencies, modulo, modulo.exports, this, "anonymous file", "anonymous directory");
-            const returnsUndefined = typeof output === "undefined";
-            const isNotInitialState = modulo.exports !== initialState;
-            const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
-            return modulo.exports = (returnsUndefined && (isNotInitialState || hasNewProperties) ? modulo.exports : output);
-          });
+          return this.callModuleFactory(dependencyPromises, callback);
         }
       }
       else if (typeof id === "string") {
@@ -656,6 +624,19 @@
     }
     cloneForDirectory(directory) {
       return ModulerV5.create(this, directory);
+    }
+    callModuleFactory(dependencyPromises, factory, submoduler = null, filename = null, dirname = null) {
+      const initialState = {};
+      const modulo = {
+        exports: initialState
+      };
+      return Promise.all(dependencyPromises).then(async resolvedDependencies => {
+        const output = await factory(...resolvedDependencies, modulo, modulo.exports, submoduler ?? this, filename, dirname);
+        const returnsUndefined = typeof output === "undefined";
+        const isNotInitialState = modulo.exports !== initialState;
+        const hasNewProperties = 0 !== Object.keys(modulo.exports).length;
+        return modulo.exports = (returnsUndefined && (isNotInitialState || hasNewProperties) ? modulo.exports : output);
+      });
     }
   };
 
