@@ -1,30 +1,16 @@
-
-🔴=Pendiente 🟠=Activo 🟩=Hecho 🔵=Trámite 
-
-🔴 devtoolkit loop:
-   🔴 flujo de touch js, touch css, touch html, touch ts
-   🔴 flujo js y css:
-      🔴 si es .entry.js fabricar el .dist.js
-      🔴 si es .entry.js fabricar el .test.js (en css nada)
-         🔴 ejecutar el test
-      🔴 buscar el .entry.js/css superior y hacerle touch
-         🔴 el touch va con el flag de bypassSemaphore en true
-      🔴 al acabar, desactivar el semáforo
-   🔴 flujo de ts:
-      🔴 fabricar el .js
-      🔴 hacerle touch al .js
-       🔴 on bypassSemaphore en true
-      🔴 tests
-🔴 devtoolkit docs
-   🔴 recuperar el concatenador a json/md
-   🔴 empezar proyecto (sin cli, con un dev.sh)
-   🔴 src, dist, test/unit, dev/touch.js, guide
-
-opcional:
-
-🔴 inject parser
-   🔴 para meter plantillas html
-   🔴 en todas las formas legacy posibles
-   🔴 sin cachear strings innecesariamente
-   🔴 por eso no van al modulerv5 sino al devtoolkit
-   🔴 tests
+🟢 Puede crear proyectos desde 0 
+  🟢 Con DevToolkit.CommandLine.createProject
+  🟢 Se basa en moduler-v5-and-dev-toolkit-starter
+  🟢 Se utiliza un JSON intermedio para no depender de directorios
+  🟢 El JSON se está exportando desde moduler-v5-starter a aquí
+🟡 Documentador
+  🟡 tiene que aceptar las siguientes sintaxis:
+    🟡 // @docs.set: {"section":["watever","enever","yulstei"],"order":10}
+    🟡 // @docs.line
+    🟡 // @docs.text.in
+    🟡 // @docs.text.out
+    🟡 // @docs.code.in
+    🟡 // @docs.code.out
+⛔️ Aclarar los comandos iniciales de cualquier proyecto
+  ⛔️ Esto va en el moduler-v5
+  ⛔️ Pero afecta a este proyecto por el baseProject del CommandLine

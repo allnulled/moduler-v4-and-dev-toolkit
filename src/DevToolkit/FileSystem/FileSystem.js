@@ -8,4 +8,7 @@ class FileSystem {
   /*<$=await include("./readDirectory.js")$>*/
   /*<$=await include("./writeDirectory.js")$>*/
   /*<$=await include("./deleteDirectory.js")$>*/
+  /*<$=await include("./emptyDirectory.js")$>*/
+  /*<$=await include("./fromDirectoryToObject.js")$>*/
+  /*<$=await include("./fromObjectToDirectory.js")$>*/
 }

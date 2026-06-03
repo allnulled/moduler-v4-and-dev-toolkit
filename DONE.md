@@ -1,3 +1,16 @@
+🟩 Acabado en: 16:42pm 03/06/2026
+   🟩 «dev»: the devtoolkit cli
+      🟩 await devToolkit.cli.tool(["dev", "tool", "touch", "--file", "some/file.js"])
+      🟩 En los ficheros desde el root:
+         🟩 /dev/cli/tool/touch/touch.js sería dev touch --file tal.js o alternativamente ./dev touch
+         🟩 /dev/cli/tool/loop/loop.js sería dev loop o alternativamente ./dev loop
+            🟩 Este comando ya presupone la estructura base del proyecto y la lógica de los touch de:
+               🟩 ficheros html
+               🟩 ficheros css
+               🟩 ficheros js
+      🟩 /dev/cli.js sería la entrada con el shebang pero sería la encargada de llamar a los /dev/cli/tool/**/* e importaría a:
+      🟩 /dev/api.js sería la entrada de la API de desarrollo e importaría a, entre otros si se quiere:
+      🟩 /dev/lib/dev-toolkit/dev-toolkit.js que tendría la carpeta reservada para los ficheros del dev-toolkit
 🟩 Iniciado en: 19:28pm 01/06/2026
    🟩 soporte a html con rutas relativas
       🟩 dejar un ejemplo de cómo inyectar una plantilla html con tjs

@@ -1,4 +1,4 @@
-class CssLoader {
+class CssModuler {
   /*<$=await include("./create.js")$>*/
   /*<$=await include("./fakeCssStyleSheet.js")$>*/
   /*<$=await include("./symbols.js")$>*/

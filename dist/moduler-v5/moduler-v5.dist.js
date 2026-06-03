@@ -5,7 +5,7 @@
 })(function() {
 
  const ModulerV5 = class {
-  static CssModuler = class CssLoader {
+  static CssModuler = class CssModuler {
    static create(...args) {
     return new this(...args);
    }
@@ -29,7 +29,7 @@
     }
    }
    assert(condition, message) {
-    if (!condition) throw new Error("AssertionError in CssLoader: " + message);
+    if (!condition) throw new Error("AssertionError in CssModuler: " + message);
    }
    async add(input1 = null, eventToAdd = {
     newSheets: {},
@@ -442,13 +442,11 @@
     return it;
    }
   }
-
   isTracing = false;
   trace(method, args = [], debugLevel = 0) {
    if (!this.isTracing) return;
    console.log(`[${method}] ${this.constructor.inspectToString(args, debugLevel)}`)
   }
-
   assert(condition, message) {
    this.trace("assert", arguments);
    if (!condition) throw new Error("AssertionError in ModulerV5: " + message);

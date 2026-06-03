@@ -17,6 +17,7 @@ pwd > cwd.txt
     -i "**/.nyc_output/**/*" \
     -i "**/dist-instrumented/**/*" \
     -i "**/unwatched/file-watcher/**/*" \
+    -i "**/unwatched/devtoolkit-cli.test/**/*" \
     -i "**/unwatched/events/**/*" \
     -i "**/semaphore.*" \
     -d 0 \

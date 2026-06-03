@@ -1,3 +1,3 @@
 assert(condition, message) {
-  if (!condition) throw new Error("AssertionError in CssLoader: " + message);
+  if (!condition) throw new Error("AssertionError in CssModuler: " + message);
 }

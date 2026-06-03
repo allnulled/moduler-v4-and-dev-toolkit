@@ -7,6 +7,8 @@
   return class DevToolkit {
     static Tracer = Tracer;
     static Utils = /*<$=await include("./Utils/Utils.js")$>*/0;
+    static Debug = /*<$=await include("./Debug/Debug.js")$>*/0;
+    static Documentator = /*<$=await include("./Documentator/Documentator.js")$>*/0;
     static CommandLine = /*<$=await include("./CommandLine/CommandLine.js")$>*/0;
     static Testing = /*<$=await include("./Testing/Testing.js")$>*/0;
     static Events = /*<$=await include("./Events/Events.js")$>*/0;
