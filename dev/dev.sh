@@ -20,6 +20,7 @@ pwd > cwd.txt
     -i "**/unwatched/devtoolkit-cli.test/**/*" \
     -i "**/unwatched/events/**/*" \
     -i "**/semaphore.*" \
+    -i "**/blank-project/**/*" \
     -d 0 \
     -mf "TODO.md" \
     -e "sh" \

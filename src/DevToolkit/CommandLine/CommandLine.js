@@ -5,4 +5,10 @@ class CommandLine {
   /*<$=await include("./baseProject.js")$>*/0;
   /*<$=await include("./prototype.tool.js")$>*/0;
   /*<$=await include("./prototype.createProject.js")$>*/0;
+  /*<$=await include("./prototype.buildJs.js")$>*/0;
+  /*<$=await include("./prototype.buildCss.js")$>*/0;
+  /*<$=await include("./prototype.buildTs.js")$>*/0;
+  /*<$=await include("./prototype.testJs.js")$>*/0;
+  /*<$=await include("./prototype.loop.js")$>*/0;
+  /*<$=await include("./prototype.up.js")$>*/0;
 }

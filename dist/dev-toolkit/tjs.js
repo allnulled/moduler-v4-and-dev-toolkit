@@ -234,26 +234,33 @@ class Tjs {
           return this.readFileSync(this.fullpathOf(targetFile, fulldirpath));
         },
         includeSync: (targetFile, ...others) => {
+          const fullpathFile = this.fullpathOf(targetFile, fulldirpath);
           if(this.settings.createFileIfNotExists) {
             try {
-              return this.renderFileSync(this.fullpathOf(targetFile, fulldirpath), ...others);
+              return this.renderFileSync(fullpathFile, ...others);
             } catch (error) {
-              if(error.code === "ENOENT" && error.message.includes("'" + targetFile + "'")) {
-                require("fs").writeFileSync(this.fullpathOf(targetFile, fulldirpath), this.settings.defaultFileContent, "utf-8");
-                return this.renderFileSync(this.fullpathOf(targetFile, fulldirpath), ...others);
+              if(error.code === "ENOENT" && error.message.includes(fullpathFile + "'")) {
+                require("fs").writeFileSync(fullpathFile, this.settings.defaultFileContent, "utf-8");
+                return this.renderFileSync(fullpathFile, ...others);
               }
               throw error;
             }
           } else {
-            return this.renderFileSync(this.fullpathOf(targetFile, fulldirpath), ...others);
+            return this.renderFileSync(fullpathFile, ...others);
           }
         },
         include: (targetFile, ...others) => {
-          return this.renderFile(this.fullpathOf(targetFile, fulldirpath), ...others).catch(error => {
+          const fullpathFile = this.fullpathOf(targetFile, fulldirpath);
+          return this.renderFile(fullpathFile, ...others).catch(error => {
             if(this.settings.createFileIfNotExists) {
-              if(error.code === "ENOENT" && error.message.includes("'" + targetFile + "'")) {
-                return require("fs").promises.writeFile(this.fullpathOf(targetFile, fulldirpath), this.settings.defaultFileContent, "utf-8").then(() => {
-                  return this.renderFile(this.fullpathOf(targetFile, fulldirpath), ...others);
+              console.log("targetFile:", fullpathFile);
+              console.log("Message:", error.message);
+              console.log("error:", error);
+              console.log("code:", error.code);
+              console.log("props:", Object.keys(error));
+              if(error.code === "ENOENT" && error.message.includes(fullpathFile + "'")) {
+                return require("fs").promises.writeFile(fullpathFile, this.settings.defaultFileContent, "utf-8").then(() => {
+                  return this.renderFile(fullpathFile, ...others);
                 });
               }
             }

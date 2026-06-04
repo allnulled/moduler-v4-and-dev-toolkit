@@ -12,8 +12,9 @@ async tool(args = process.argv) {
     }
   }
   let filepath = null;
+  console.log(_);
   Determine_filepath: {
-    filepath = this.toolkit.fullpathOf(`dev/cli/tool/${_.join("/")}/${_.join(".")}.js`);
+    filepath = this.toolkit.fullpathOf(`dev/cli/tool/${_.join("/")}/${_[_.length-1]}.js`);
   }
   try {
     const callback = require(filepath);
