@@ -2,6 +2,22 @@
 
 La especificación ModulerV5 intenta explicar cómo tiene que ser el framework y por qué así.
 
+## Índice
+
+- [La especificación de ModulerV5](#la-especificación-de-modulerv5)
+  - [Índice](#índice)
+  - [Cláusulas](#cláusulas)
+    - [C.1. El identificador principal es el path](#c1-el-identificador-principal-es-el-path)
+    - [C.2. Un path puede exportar 1 valor pero definir múltiples valores](#c2-un-path-puede-exportar-1-valor-pero-definir-múltiples-valores)
+    - [C.3. Usa module.exports y exports.prop pero no return](#c3-usa-moduleexports-y-exportsprop-pero-no-return)
+    - [C.4. Firmas de los métodos](#c4-firmas-de-los-métodos)
+      - [C.5. Firma de la función factory](#c5-firma-de-la-función-factory)
+      - [C.6. Variables fantasma en los scripts de dependencias](#c6-variables-fantasma-en-los-scripts-de-dependencias)
+      - [C.7. Particularidades de la variable fantasma $dictionary](#c7-particularidades-de-la-variable-fantasma-dictionary)
+      - [C.8. Particularidades de la variable global Dictionary](#c8-particularidades-de-la-variable-global-dictionary)
+  - [Ejemplos](#ejemplos)
+    - [E.1. Ejemplo de módulo](#e1-ejemplo-de-módulo)
+
 ## Cláusulas
 
 Conjunto de cláusulas de la especificación.

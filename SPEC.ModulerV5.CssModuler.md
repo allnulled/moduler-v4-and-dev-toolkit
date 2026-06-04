@@ -1,183 +1,73 @@
-# La especificación de ModulerV5
+# La especificación del CssModuler de ModulerV5
 
-La especificación ModulerV5 intenta explicar cómo tiene que ser el framework y por qué así.
+La especificación del CssModuler de ModulerV5 intenta explicar cómo se espera usar el modulador de CSS del ModulerV5.
+
+## Índice
+
+- [La especificación del CssModuler de ModulerV5](#la-especificación-del-cssmoduler-de-modulerv5)
+  - [Índice](#índice)
+  - [Cláusulas](#cláusulas)
+    - [C.1. Hay una clase que recibe una instancia de ModulerV5 y la expone](#c1-hay-una-clase-que-recibe-una-instancia-de-modulerv5-y-la-expone)
+    - [C.2. Hay un método para registrar hojas css](#c2-hay-un-método-para-registrar-hojas-css)
+    - [C.3. Hay un método para desregistrar hojas css](#c3-hay-un-método-para-desregistrar-hojas-css)
+    - [C.4. Hay un método para sincronizar](#c4-hay-un-método-para-sincronizar)
+    - [C.5. Funcionamiento interno](#c5-funcionamiento-interno)
+    - [C.6. Sintaxis de los requires del css](#c6-sintaxis-de-los-requires-del-css)
 
 ## Cláusulas
 
 Conjunto de cláusulas de la especificación.
 
-### C.1. El identificador principal es el path
+### C.1. Hay una clase que recibe una instancia de ModulerV5 y la expone
 
-- De momento se empieza sin un id personalizable
-   - Esto es para no redundar en identificadores, sabiendo que el path ya es un identificador único
-   - Más adelante se añadirá
+- La clase `ModulerV5.CssModuler`
+- La instancia `ModulerV5.prototype.css`
+   - accede a la instancia `ModulerV5` padre con `ModulerV5.prototype.css.moduler`
 
-### C.2. Un path puede exportar 1 valor pero definir múltiples valores
+### C.2. Hay un método para registrar hojas css
 
-- En 1 fichero puedes exportar solamente 1 módulo, pero puedes definir varios.
-- En último lugar, siempre puedes exportar la misma colección que defines en el fichero.
-- Esto es para evitar la confusión, exportar varios módulos
+- El método `ModulerV5.prototype.css.add(subpath:String):Promise<Object>` permite:
+   - registrar una hoja css
+   - registrar las hoja css incluidas por esa hoja css con la sintaxis `/*@requires:x.css*/`
+   - registrar las hoja css incluidas por esas incluidas, y así recursivamente, hasta resolver todos los módulos.
+   - implica que esa hoja quiere ser insertada
+   - si usa el mismo `subpath` que otro anterior, se usa el cacheado
+   - finalmente, cuando se llame a `ModulerV5.prototype.css.synchronize()`, se asegurará que esa hoja css sea sincronizada por el navegador
+      - en node.js solo generará el css final de todas las hojas de la instancia, pero no se inyecta porque no está la API de webkit
 
-### C.3. Usa module.exports y exports.prop pero no return
+### C.3. Hay un método para desregistrar hojas css
 
-- Los ficheros usan la sintaxis de node.js:
-   - `module.exports` para exportar de golpe todo el módulo
-   - `exports.<prop>` para exportar en tiempo real partes del módulo
-   - puede usarse `return` también (que sobreescribe si no es `undefined`) solo que es bloqueante, interrumpe el script
+- El método `ModulerV5.prototype.css.remove(subpath:String):Promise<Object>` permite:
+   - desregistrar una hoja css
+   - finalmente, cuando se llame a `ModulerV5.prototype.css.synchronize()`, se asegurará que esa hoja css no aparezca en el css final
 
-### C.4. Firmas de los métodos
+### C.4. Hay un método para sincronizar
 
-- El `define` permite:
-   - `define(dependencies:Array, factory:Function):Promise`: factory con dependencias
-   - `define(factory:Function):Promise`: factory sin dependencias
-- El `mean` permite:
-   - `mean(dependencies:Array, factory:Function):Promise`: factory con dependencias
-   - `mean(dependencies:Array):Promise` (exclusiva de `mean`): dependencias sin factory
-   - `mean(id:String):Promise` (exclusiva de `mean`): dependencia única
-   - `mean(factory:Function):Promise`: factory sin dependencias
+- El método `ModulerV5.prototype.css.synchronize():Promise<Object>` permite:
+   - refrescar las hojas css actualmente cargadas por el navegador a través de esa instancia `CssModuler`.
+   - lo que sucede es que:
+      - `synchronize()` genera una hoja css final con los módulos cargados y ordenados por orden de dependencia
+      - ese css final lo inyecta con la API de `CSSSheet` mediante el método [`replace`](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/replace).
 
-#### C.5. Firma de la función factory
+### C.5. Funcionamiento interno
 
-- El `factory:Function` recibe:
-   - `...dependencies:Array<any>`: dependencias resultas en el orden proporcionado
-   - `module:Object`: la fórmula de node.js para usar `module.exports`
-   - `exports:Object`: la fórmula de node.js para usar `exports.<prop>`
-   - `$dictionary:ModulerV5`: instancia de `ModulerV5` que ha hecho la llamada a `define` o `mean`
-      - esto permite usar las firmas `$dictionary.define`, `$dictionary.mean`, etc. para referirse a la instancia local de cada caso
-   - `__filename:String`: ruta completa del fichero actual
-   - `__dirname:String`: ruta completa de la carpeta actual
+- Con `add` y `remove` controlas las hojas css que quieres incluir
+   - La carga recursiva se produce en el `add`, no en el `synchronize`
+   - Se buscan los `/*@requires:x.css*/` y se van resolviendo
+- Con `synchronize` controlas que el navegador se actualice con las hojas que tienes incluidas
+   - Previamente hay un paso de ordenación de los `/*@requires:x.css*/`
+      - donde los css que se necesitan siempre están detrás de los que los necesitan
+   - Pero la carga recursiva ya se ha hecho en el `add`
 
+### C.6. Sintaxis de los requires del css
 
-Su uso quedaría así:
+Los `/*@requires:x.css*/` sirven para decir que ese `x.css` debe cargarse antes que la hoja actual.
 
-```js
-$dictionary.define(["./a.js", "./b.js"], function(a, b, module, exports, $dictionary, __filename, __dirname) {
-    //...
-});
-$dictionary.mean(["./a.js", "./b.js"], function(a, b, module, exports, $dictionary, __filename, __dirname) {
-    //...
-});
-```
+Esto es lo que se supone que debería soportar la especificación:
 
-#### C.6. Variables fantasma en los scripts de dependencias
-
-- Esto es en el contexto de scripts importados por `dependencies` en las firmas:
-   - `Dictionary.define([...dependencies], factory)`
-   - `Dictionary.mean([...dependencies], factory?)`
-- Las variables fantasma son las mismas que las de la función `factory:Function` pero sin dependencias inyectadas y con los nombres prestablecidos:
-   - `module:Object`
-   - `exports:Object`
-   - `$dictionary:ModulerV5`
-   - `__filename:String`
-   - `__dirname:String`
-
-#### C.7. Particularidades de la variable fantasma $dictionary
-
-- Tanto en los scripts importados por `define` y `mean` como en las funciones `factory`, se inyecta la variable `$dictionary`.
-- La variable `$dictionary` es una instancia de la clase `ModulerV5`
-   - Es una distancia distinta a la original, vía `ModulerV5.prototype.cloneForFile` se hace un duplicado
-   - La única diferencia con la instancia original es que:
-      - En el clon, el `basedir` apunta al directorio del fichero que es importado
-      - En el original, el `basedir` apunta al directorio del fichero que llama a importar a otro (con `define` o `mean`)
-      - El `rootdir` es común en ambos ficheros, por eso, y apunta al `basedir` de la instancia original de toda la rama de clones
-         - Porque en cada clonación, al clon se le pasa el `rootdir` intacto
-- Esto es lo que permite rutas relativas por cada fichero
-   - Porque `$dictionary.basedir` va cambiando
-- Pero cuidado: esto significa que si retienes los `$dictionary` semánticamente:
-   - El Garbage Collector puede no borrar nunca las instancias `$dictionary`
-      - Porque una función tiene previsto usarlo, sería el caso más habitual
-   - El uso de `$dictionary` en cada script debería ser:
-      - síncrono: el primer nivel del script, sin `await`s intermedios
-      - conciso: el uso del `$dictionary` es cargar cosas, y cachear
-      - esporádico: no hacer grandes planes con esta variable en los scripts
-         - si quieres usar reflection de módulos, es mejor usar directamente `Dictionary`
-      - inmediato: en el primer nivel, no dentro de funciones
-      - no retener a `$dictionary` dentro de funciones para hacer magia porque puedes crear basura en memoria
-
-#### C.8. Particularidades de la variable global Dictionary
-
-- La variable global `Dictionary` está originalmente en `ModulerV5.Dictionary`
-- Es una instancia de `ModulerV5` de acceso global
-- Es la forma normal: cargar las cosas en 1 mismo modulador globalmente
-- Su `rootdir` y su `basedir` siempre coinciden, porque no es un clon
-- Se contrapone a la variable `$dictionary` en que:
-   - `$dictionary` tiene el `basedir` del directorio del script en sí
-      - es decir, igual que la variable inyectada `__dirname`
-   - `$dictionary` tiene el `rootdir` del `basedir` del modulador original (no clon)
-      - y no tiene por qué coincidir con el del `Dictionary`
-      - porque `$dictionary` aparecerá en cualquier script importado de cualquier instancia de modulador, no solo de `Dictionary`
-
-----
-
-## Ejemplos
-
-----
-
-### E.1. Ejemplo de módulo
-
-A continuación se explican 2 formas de hacer módulos que se parecen pero no son lo mismo.
-
-----
-
-En el main empiezas el hilo:
-
-```js
-// main.js
-const lib = await $dictionary.define("./lib.js");
-```
-
-Y ahora las 2 opciones. Nótese que no resultan en lo mismo: una devuelve una promesa (b) y la otra un objeto con 2 promesas (a).
-
-----
-
-Opción a, sería la más optimizada - porque los vas exponiendo a medida que los defines, cuando tienes muchas definiciones juntas y hay prisa por otros módulos:
-
-```js
-// lib.js
-export.ab = $dictionary.define(["./lib/a.js","./lib/b.js"], function(a, b) {
-    return { a, b };
-});
-export.cd = $dictionary.define(["./lib/c.js","./lib/d.js"], function(c, d) {
-    return { c, d };
-});
-```
-
-Que se usaría así:
-
-```js
-Opcion_a: {
-    await lib.ab;
-    console.log(lib.ab.a);
-    console.log(lib.ab.b);
-    await lib.cd;
-    console.log(lib.cd.c);
-    console.log(lib.cd.d);
-}
-```
-
-----
-
-Opción b, sería la clásica - es más compacta y fácil de gestionar luego porque solo tienes que hacer `await` en el punto de salida:
-
-```js
-// lib.js
-module.exports = $dictionary.define(["./lib/a.js","./lib/b.js","./lib/c.js","./lib/d.js"], function(a,b,c,d) {
-    return {
-        ab: { a, b },
-        cd: { c, d },
-    };
-});
-```
-
-Que se usaría así:
-
-```js
-Opcion_b: {
-    console.log(lib.ab.a);
-    console.log(lib.ab.b);
-    console.log(lib.cd.c);
-    console.log(lib.cd.d);
-}
-```
-
-Son diferentes técnicas, que pueden interesar en diferentes contextos. Por mi experiencia, yo uso la opción b, pero la a es más óptima.
+- Permiten rutas absolutas: `/*@requires:http://loquesea.com/ruta/a/fichero.css*/`
+- Permiten rutas absolutas de Windows: `/*@requires:C:/ruta/a/fichero.css*/` (no testeado todavía)
+- Permiten rutas absolutas de Linux: `/*@requires:/ruta/a/fichero.css*/`
+- Permiten rutas relativas al fichero css actual: `/*@requires:./file.css*/`
+- Permiten rutas relativas superiores al fichero css actual: `/*@requires:../file.css*/` (no testeado todavía)
+- Permiten rutas relativas a la raíz del modulador padre: `/*@requires:@/ruta/a/fichero.css*/` (no testeado todavía)
